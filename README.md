@@ -24,6 +24,6 @@ Editor de imágenes al estilo Canva que es un solo archivo HTML: fotos, textos, 
 
 Desde https://jonatanquiro.github.io/lienzo/ se puede instalar y después abre sin internet:
 
-- **Android (Chrome):** menú ⋮ → "Instalar aplicación".
+- **Android (Chrome):** botón "Instalar" arriba, o menú ⋮ → "Instalar aplicación".
 - **iPhone / iPad (Safari):** botón Compartir → "Agregar a inicio".
-- **PC (Chrome o Edge):** ícono de instalar en la barra de direcciones.
+- **PC (Chrome o Edge):** botón "Instalar" arriba, o el ícono de instalar en la barra de direcciones.

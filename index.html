@@ -189,6 +189,7 @@ body.drag::after{content:"Soltá las imágenes acá";position:fixed;inset:10px;b
     <button id="zl" class="sm" title="Ajustar a la pantalla">100%</button>
     <button id="zIn" class="sm" title="Acercar">+</button>
   </div>
+  <button id="bInst" title="Instalar Lienzo como aplicación" hidden></button>
   <button id="bExp" class="primary"></button>
 </header>
 <div id="app">
@@ -1284,6 +1285,16 @@ addEventListener('dragenter',e=>{if(e.dataTransfer?.types.includes('Files')){dra
 addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;document.body.classList.remove('drag')}});
 addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{e.preventDefault();dragN=0;document.body.classList.remove('drag');if(e.dataTransfer?.files.length)addFiles([...e.dataTransfer.files])});
+/* instalar como aplicación (PWA) */
+let instEv=null;const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+$('#bInst').innerHTML=ic('download')+'<span class="lbl">Instalar</span>';
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e;$('#bInst').hidden=false});
+addEventListener('appinstalled',()=>{instEv=null;$('#bInst').hidden=true;toast('Lienzo quedó instalada')});
+if(isIOS&&!standalone)$('#bInst').hidden=false;
+$('#bInst').onclick=async()=>{
+  if(instEv){instEv.prompt();const r=await instEv.userChoice;if(r.outcome==='accepted')$('#bInst').hidden=true;instEv=null;return}
+  modal('Instalar Lienzo',el('div',{},el('p',{innerHTML:'En iPhone o iPad se instala desde Safari:'}),el('ol',{style:'padding-left:20px;line-height:1.7'},el('li',{innerHTML:'Tocá el botón <b>Compartir</b> (el cuadrado con la flecha hacia arriba).'}),el('li',{innerHTML:'Elegí <b>Agregar a inicio</b>.'}),el('li',{innerHTML:'Confirmá con <b>Agregar</b>.'})),el('p',{className:'hint',textContent:'Después abre desde el ícono, a pantalla completa y sin internet.'})),close=>[el('button',{className:'primary',textContent:'Entendido',onclick:close})]);
+};
 let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(fitZoom,150)});
 
 /* ───────── arranque ───────── */

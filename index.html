@@ -395,7 +395,7 @@ function proc(o){
   const a=assets[o.asset];if(!a)return null;
   const im=a.img,iw=im.naturalWidth,ih=im.naturalHeight,c=o.crop||{x:0,y:0,w:1,h:1};
   const r={im,sx:c.x*iw,sy:c.y*ih,sw:c.w*iw,sh:c.h*ih},f=o.f,fx=o.fx||{};
-  const fs=filterStr(f),hasFx=fx.vig||fx.pix||fx.grain||fx.tintA;
+  const fs=filterStr(f),hasFx=fx.vig||fx.pix||fx.grain||fx.tintA||fx.sharp;
   if(!fs&&!hasFx)return r;
   const key=o.asset+JSON.stringify([c,f,fx]);if(pc[o.id]?.key===key)return pc[o.id].r;
   const s=Math.min(1,2000/Math.max(r.sw,r.sh)),cw=Math.max(1,Math.round(r.sw*s)),ch=Math.max(1,Math.round(r.sh*s));
@@ -407,6 +407,7 @@ function proc(o){
     if(fx.pix){const bs=Math.max(2,fx.pix*cw/1000),t=mkCanvas(cw/bs,ch/bs);t.getContext('2d').drawImage(cn,0,0,t.width,t.height);x.clearRect(0,0,cw,ch);x.imageSmoothingEnabled=false;x.drawImage(t,0,0,cw,ch);x.imageSmoothingEnabled=true}
     if(fx.tintA){x.globalCompositeOperation='color';x.globalAlpha=fx.tintA;x.fillStyle=fx.tint||'#ffb020';x.fillRect(0,0,cw,ch);x.globalAlpha=1;x.globalCompositeOperation='source-over'}
     if(fx.vig){const g=x.createRadialGradient(cw/2,ch/2,Math.min(cw,ch)*.25,cw/2,ch/2,Math.hypot(cw,ch)/2);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${fx.vig})`);x.fillStyle=g;x.fillRect(0,0,cw,ch)}
+    if(fx.sharp){const d=x.getImageData(0,0,cw,ch),p=d.data,o=new Uint8ClampedArray(p),a=fx.sharp*1.2,W4=cw*4;for(let yy=1;yy<ch-1;yy++)for(let xx=1;xx<cw-1;xx++){const i=(yy*cw+xx)*4;for(let k=0;k<3;k++){const v=o[i+k];p[i+k]=v+a*(4*v-o[i+k-4]-o[i+k+4]-o[i+k-W4]-o[i+k+W4])}}x.putImageData(d,0,0)}
     if(fx.grain){const d=x.getImageData(0,0,cw,ch),p=d.data,k=fx.grain*110;for(let i=0;i<p.length;i+=4){const n=(Math.random()-.5)*k;p[i]+=n;p[i+1]+=n;p[i+2]+=n}x.putImageData(d,0,0)}
     x.globalCompositeOperation='destination-in';base();x.globalCompositeOperation='source-over';
   }
@@ -418,7 +419,7 @@ function drawImageObj(c,o){
   if(!p){c.fillStyle='#8886';c.fillRect(x,y,w,h);return}
   if(o.mask||o.rad||o.bw){
     const k=Math.min(S,4096/Math.max(w,h));scr=scr||mkCanvas(1,1);scr.width=Math.max(1,Math.ceil(w*k));scr.height=Math.max(1,Math.ceil(h*k));
-    const t=scr.getContext('2d');t.scale(k,k);shapePath(t,o.mask||'rect',0,0,w,h,o.rad);t.save();t.clip();t.drawImage(p.im,p.sx,p.sy,p.sw,p.sh,0,0,w,h);
+    const t=scr.getContext('2d');t.imageSmoothingQuality='high';t.scale(k,k);shapePath(t,o.mask||'rect',0,0,w,h,o.rad);t.save();t.clip();t.drawImage(p.im,p.sx,p.sy,p.sw,p.sh,0,0,w,h);
     if(o.bw){t.strokeStyle=o.bc||'#ffffff';t.lineWidth=o.bw*2;t.stroke()}t.restore();
     setShadow(c,o);c.drawImage(scr,x,y,w,h);
   }else{setShadow(c,o);c.drawImage(p.im,p.sx,p.sy,p.sw,p.sh,x,y,w,h)}
@@ -430,6 +431,7 @@ function strokePts(c,pts,x,y,w,h){
   c.stroke();
 }
 function drawObj(c,o){
+  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
   c.save();c.translate(o.x+o.w/2,o.y+o.h/2);c.rotate((o.rot||0)*RAD);c.scale(o.flipX?-1:1,o.flipY?-1:1);
   c.globalAlpha=o.op??1;c.globalCompositeOperation=o.blend||'source-over';
   const w=o.w,h=o.h,x=-w/2,y=-h/2;
@@ -729,9 +731,12 @@ function buildInsp(){
     const src=assets[o.asset]?.src;
     box.append(sec('Filtros',!o.svg,el('div',{className:'grid g4'},PRESETS.map(([n,f])=>el('button',{className:'flt',title:n,style:`background-image:url("${src&&src.length<3e6?src:''}");filter:${filterStr(f)||'none'}`,onclick(){selObjs().forEach(x=>{if(x.type==='image')x.f={...f}});commit();buildInsp()}},el('small',{textContent:n}))))),
       sec('Ajustes',false,fRange(t,'Brillo','f.br',0,2,.02,1),fRange(t,'Contraste','f.ct',0,2,.02,1),fRange(t,'Saturación','f.sat',0,3,.02,1),fRange(t,'Tono','f.hue',-180,180,1,0),fRange(t,'Desenfoque','f.blur',0,30,.5,0),fRange(t,'Gris','f.gray',0,1,.02,0),fRange(t,'Sepia','f.sepia',0,1,.02,0),fRange(t,'Negativo','f.inv',0,1,.02,0)),
-      sec('Efectos',false,fRange(t,'Viñeta','fx.vig',0,1,.02,0),fRange(t,'Pixelado','fx.pix',0,60,1,0),fRange(t,'Grano','fx.grain',0,1,.02,0),fRange(t,'Tinte','fx.tintA',0,1,.02,0),fColor(t,'Color tinte','fx.tint','#ffb020')),
+      sec('Efectos',false,fRange(t,'Viñeta','fx.vig',0,1,.02,0),fRange(t,'Pixelado','fx.pix',0,60,1,0),fRange(t,'Nitidez','fx.sharp',0,1,.02,0),fRange(t,'Grano','fx.grain',0,1,.02,0),fRange(t,'Tinte','fx.tintA',0,1,.02,0),fColor(t,'Color tinte','fx.tint','#ffb020')),
       sec('Forma y borde',false,el('div',{className:'grid g6'},MASKS.map(([m,k])=>el('button',{className:'sw'+((o.mask||'')===m?' on':''),title:'Recortar con forma',onclick(){t.set('mask',m);commit();buildInsp()}},shapeIcon(k,26)))),
         fRange(t,'Redondeo','rad',0,Math.round(Math.min(o.w,o.h)/2),1,0),fRange(t,'Borde','bw',0,60,1,0),fColor(t,'Color borde','bc','#ffffff')));
+    if(!o.svg){const a=assets[o.asset]?.img,cw=a?(o.crop?.w||1)*a.naturalWidth:0,dens=cw/o.w,low=a&&dens<.8;
+      box.insertBefore(sec('Calidad de la foto',low,el('p',{className:'hint',innerHTML:low?`<b style="color:var(--ac)">Esta foto está agrandada ${Math.round(1/dens*10)/10} veces</b> y puede verse borrosa al descargar. Mejorala con IA o achicala un poco.`:`La foto tiene buena resolución para este tamaño (${a?a.naturalWidth+' × '+a.naturalHeight+' px':''}).`}),
+        el('button',{className:'wide'+(low?' primary':''),innerHTML:ic('wand')+'Mejorar calidad con IA',onclick:()=>aiUpscale(o)}),el('p',{className:'hint',textContent:'Agranda la foto hasta 4 veces reconstruyendo detalles. La primera vez descarga la IA (unos 15 MB). Todo se procesa en tu equipo.'})),box.querySelector('details.sec'));}
     if(!o.svg){const tol=el('input',{type:'range',min:5,max:120,value:35});
       box.append(sec('Quitar fondo',true,el('p',{className:'hint',textContent:'Fondo liso: borra un color parejo (blanco, verde, etc.) partiendo de las esquinas.'}),el('label',{className:'fr'},el('span',{textContent:'Tolerancia'}),tol,el('output')),el('button',{className:'wide',textContent:'Quitar fondo liso',onclick:()=>removeBg(o,+tol.value)}),el('button',{className:'wide primary',style:'margin-top:8px',innerHTML:ic('wand')+'Quitar fondo con IA',onclick:()=>aiBg(o)}),el('p',{className:'hint',textContent:'La IA sirve para personas, productos y mascotas con cualquier fondo. La primera vez descarga unos 90 MB; después queda guardada. Todo se procesa en tu equipo.'})));}
   }
@@ -1026,6 +1031,22 @@ function tfx(o,n){
   if(n==='Fondo')o.bgc=col==='#ffe066'?'#111111':'#ffe066';
 }
 /* quitar fondo con IA (se descarga la primera vez que se usa) */
+/* mejorar calidad: agranda la foto con una red neuronal (ESRGAN) que corre en el navegador */
+let upLib={};
+async function aiUpscale(o){
+  const a=assets[o.asset];if(!a)return;const iw=a.img.naturalWidth,ih=a.img.naturalHeight,big=Math.max(iw,ih);
+  if(big>=2400)return toast('La foto ya tiene mucha resolución; mejorarla no cambia casi nada.',4000);
+  const sc=big<=700?4:2;
+  try{
+    toast('Preparando la IA para mejorar la foto…',120000);
+    const U=upLib.U??=(await import('https://cdn.jsdelivr.net/npm/upscaler@1.0.0/+esm')).default;
+    const up=upLib[sc]??=new U({model:(await import(`https://cdn.jsdelivr.net/npm/@upscalerjs/esrgan-medium@1.0.0/${sc}x/+esm`)).default});
+    const out=await up.upscale(a.img,{output:'base64',patchSize:64,padding:6,progress:p=>toast(`Mejorando la foto (${sc}×)… ${Math.round(p*100)}%`,120000)});
+    const c=mkCanvas(iw*sc,ih*sc);c.getContext('2d').drawImage(await loadImg(out),0,0);
+    o.asset=await addAsset(c.toDataURL(/png|webp|svg/.test(a.src.slice(5,20))?'image/png':'image/jpeg',.95));commit();buildInsp();
+    toast(`Listo: la foto ahora tiene ${iw*sc} × ${ih*sc} px`,4000);
+  }catch(e){toast('No se pudo mejorar la foto en este equipo. Probá con una foto más chica o en otro navegador.',6000)}
+}
 let bgLib;
 async function aiBg(o){
   try{

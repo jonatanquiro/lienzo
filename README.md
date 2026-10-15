@@ -18,7 +18,7 @@ Editor de imágenes al estilo Canva que es un solo archivo HTML: fotos, textos, 
 - Bancos de imágenes: Openverse, Wikimedia Commons y Picsum sin clave; Pexels, Pixabay y Unsplash con tu clave gratuita.
 - Más de 200.000 íconos (Iconify), 38 formas, marcos, etiquetas armadas, líneas, flechas y emojis por categoría.
 - Textos con 100 letras, efectos rápidos (sombra, hueco, eco, neón…), degradado, contorno, resaltado y texto en curva.
-- Fotos: recorte, máscaras con forma, bordes, filtros, ajustes (brillo, contraste, saturación, tono, desenfoque), viñeta, pixelado, grano, tinte, quitar fondos lisos y quitar fondo con IA (se procesa en tu equipo).
+- Fotos: recorte, máscaras con forma, bordes, filtros, ajustes (brillo, contraste, saturación, tono, desenfoque), viñeta, pixelado, grano, tinte, nitidez, quitar fondos lisos, quitar fondo con IA y mejorar la calidad con IA (agranda hasta 4 veces; se procesa en tu equipo).
 - Dibujo a mano, capas, grupos, bloqueo, alinear y distribuir, guías que se imantan, modos de mezcla.
 - Deshacer/rehacer, guardado automático y proyectos `.lienzo`.
 - Descarga en PNG, JPG, WebP o PDF, a mitad, original, doble o triple tamaño, con fondo transparente.

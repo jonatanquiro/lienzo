@@ -694,7 +694,7 @@ function shapeIcon(kind,size=40,color='#eef0f4'){const c=mkCanvas(size*2,size*2)
 function buildInsp(){
   const box=$('#insp');box.innerHTML='';const L=selObjs(),t=OT;document.body.classList.toggle('has-sel',!!L.length);
   if(!L.length){
-    box.append(el('h2',{textContent:'Página'}),el('button',{className:'wide',innerHTML:ic('layout')+`Tamaño: ${doc.w} × ${doc.h}`,onclick:sizeModal}),fPaint(PT,'Fondo','bg',true),
+    box.append(el('h2',{textContent:'Página'}),el('button',{className:'wide',innerHTML:ic('layout')+`Tamaño: ${doc.dpi?`${fcm(pxToCm(doc.w))} × ${fcm(pxToCm(doc.h))} cm`:`${doc.w} × ${doc.h}`}`,onclick:sizeModal}),fPaint(PT,'Fondo','bg',true),
       el('p',{className:'hint',innerHTML:'Elegí algo del panel izquierdo para empezar, o arrastrá imágenes desde tu equipo.<br><br><b>Atajos:</b> Ctrl+Z deshacer · Ctrl+C / V copiar y pegar · Ctrl+D duplicar · Supr borrar · flechas mover · Ctrl+rueda zoom · doble clic edita un texto o recorta una foto · Shift para elegir varios.'}));
     return;
   }
@@ -783,8 +783,8 @@ const PALS=[
  {n:'Bosque',bg:'#1b4332',t:'#f1faee',s:'#b7e4c7',a:'#ffd166',at:'#1b4332',d:'#52b788'},
  {n:'Coral',bg:'#ff6b6b',t:'#ffffff',s:'#fff0e0',a:'#1a1a2e',at:'#ffffff',d:'#ffffff'},
 ];
-const FORMATS=[['Feed cuadrado',1080,1080],['Feed vertical 4:5',1080,1350],['Historia / Reel / Estado',1080,1920],['Miniatura YouTube',1280,720],['Post horizontal',1200,630],['Portada Facebook',1640,624],['Pinterest',1000,1500],['Flyer A4',1240,1754],['Tarjeta personal',1050,600]];
-const THEMES=['Todos','Ventas','Frases','Redes','Eventos','Negocio','Con foto'];
+const FORMATS=[['Taza 11 oz · 21 × 9 cm',2480,1063,300],['Taza 15 oz · 23 × 10 cm',2717,1181,300],['Remera: frente A4 · 21 × 29,7 cm',2480,3508,300],['Remera: frente A3 · 29,7 × 42 cm',3508,4961,300],['Remera: pecho · 10 × 10 cm',1181,1181,300],['Feed cuadrado',1080,1080],['Feed vertical 4:5',1080,1350],['Historia / Reel / Estado',1080,1920],['Miniatura YouTube',1280,720],['Post horizontal',1200,630],['Portada Facebook',1640,624],['Pinterest',1000,1500],['Flyer A4',1240,1754],['Tarjeta personal',1050,600]];
+const THEMES=['Todos','Tazas','Remeras','Ventas','Frases','Redes','Eventos','Negocio','Con foto'];
 const STYLES=['Todos','Minimalista','Elegante','Retro','Neón','Divertido','Orgánico','Moderno','Editorial','Infantil'];
 const STYLE_OF={};for(const[st,L]of Object.entries({Minimalista:'Minimal|Frase clásica|Recordatorio|Precio|Foto y texto|Tarjeta|Logo|Contacto|Medios de pago|Horarios',Elegante:'Frase elegante|Casamiento|Lanzamiento|Certificado|Lista de precios|Próximamente|Black Friday|Retrato|Colección|Quince|Año nuevo|Día de la madre|Marca',Retro:'Liquidación|Menú|Feria|Polaroid|Cafetería|Miniatura|Combo|Mito o realidad|Inauguración',Neón:'Cyber Monday|Fiesta|En vivo|Ciudad de noche',Divertido:'Sorteo|Feliz finde|Pregunta|Cumpleaños|Gran venta|Hot Sale|Envío gratis|Delivery|Esto o aquello|Seguime|Descuento|2x1|Cupón|Turnos|Torneo',Orgánico:'Manuscrita|Amor propio|Naturaleza|Receta|Buen día|Postres|Gracias|Lunes',Editorial:'Viaje|Inmobiliaria|Gastronomía|Cita sobre foto|Foto de fondo|Blog|Ciudad|Producto',Infantil:'Baby shower|Mascotas|Graduación'}))for(const n of L.split('|'))STYLE_OF[n]=st;
 const styleOf=d=>d[4]||STYLE_OF[d[0]]||'Moderno';
@@ -793,6 +793,7 @@ const tx=(text,size,font,fill,x={},g)=>({k:'t',text,size,font,fill,x,g});
 const ln=(w,h,fill,g)=>({k:'l',w,h,fill,g});
 const pill=(text,size,font,fill,bg,x={},g=50)=>({k:'p',text,size,font,fill,bg,x,g});
 const BD={bold:true};
+const mug=(P,stack,o={})=>({bg:P.bg,k:1.4,...o,stack:[],cols:[{area:{x:.03,w:.44},stack},{area:{x:.53,w:.44},stack}]});
 const DESIGNS=[
  ['Gran venta','Ventas',0,(c,P)=>({back:[c.E(.1,.1,.67,P.d,{op:.12}),c.E(.9,.88,.6,P.d,{op:.1})],stack:[tx('GRAN VENTA',170,'Anton',P.t,{sh:SH}),tx('HASTA 50% OFF',72,'Poppins',P.s,BD),pill('COMPRÁ AHORA',38,'Poppins',P.at,P.a,BD,60)]})],
  ['Descuento','Ventas',7,(c,P)=>({back:[c.Q('burst',.86,.13,.3,P.a),c.Q('burst',.1,.9,.22,P.a,{op:.25})],stack:[tx('SOLO POR HOY',42,'Montserrat',P.s,{bold:true,ls:10}),tx('-50%',300,'Anton',P.t,{},0),tx('EN TODA LA TIENDA',54,'Poppins',P.t,BD,0),pill('APROVECHÁ',36,'Poppins',P.at,P.a,BD)]})],
@@ -931,6 +932,36 @@ const DESIGNS=[
  ['Jardín','Negocio',11,(c,P)=>({back:[c.Q('cloud',.2,.14,.3,'#ffffff'),c.Q('cloud',.82,.2,.24,'#ffffff'),c.Q('ellipse',.86,.86,.2,'#ffd166')],stack:[tx('Inscripciones\nabiertas',120,'Baloo 2',P.t,{bold:true,lh:1}),tx('Jardín Los Pollitos · Salas de 2 a 5',44,'Fredoka',P.s),pill('2026',40,'Fredoka','#ffffff','#ff8fab',BD)]}),'Infantil'],
  ['¡A jugar!','Frases',13,(c,P)=>({back:[c.Q('star',.14,.16,.16,'#ffd166',{rot:-10}),c.Q('ellipse',.86,.84,.18,'#06d6a0')],stack:[tx('¡A JUGAR!',200,'Luckiest Guy','#ffffff',{sw:6,sc:'#1a1a2e'}),tx('🎈🧸🎨',120,'Arial','#000000')]}),'Infantil'],
  ['Pascuas','Eventos',11,(c,P)=>({back:[c.E(.1,.1,.24,'#ffffff',{op:.6}),c.E(.9,.9,.3,'#ffffff',{op:.6})],stack:[tx('🐣🥚🐰',120,'Arial','#000000'),tx('¡Felices Pascuas!',120,'Chewy',P.t),tx('Huevos de chocolate artesanales',42,'Poppins',P.s)]}),'Infantil'],
+ ['Mejor mamá','Tazas',6,(c,P)=>mug(P,[tx('LA MEJOR',70,'Montserrat',P.s,{bold:true,ls:10}),tx('MAMÁ',240,'Bebas Neue',P.t,{},0),tx('DEL MUNDO',70,'Montserrat',P.s,{bold:true,ls:10},0),tx('❤️',90,'Arial','#000000')]),'Divertido'],
+ ['Mejor papá','Tazas',2,(c,P)=>mug(P,[tx('EL MEJOR',70,'Montserrat',P.s,{bold:true,ls:10}),tx('PAPÁ',250,'Anton',P.a,{},0),tx('DEL MUNDO',70,'Montserrat',P.s,{bold:true,ls:10},0)]),'Moderno'],
+ ['Primero el café','Tazas',1,(c,P)=>mug(P,[tx('Primero',130,'Pacifico',P.t),tx('EL CAFÉ',150,'Bebas Neue',P.a,{},-10),tx('☕',100,'Arial','#000000')]),'Orgánico'],
+ ['Gracias seño','Tazas',11,(c,P)=>mug(P,[tx('GRACIAS',60,'Montserrat',P.s,{bold:true,ls:12}),tx('Seño',200,'Dancing Script',P.t,{bold:true},0),tx('por enseñarme tanto 🍎',50,'Poppins',P.s)]),'Infantil'],
+ ['Con nombre','Tazas',7,(c,P)=>mug(P,[tx('Sofía',230,'Great Vibes',P.t),ln(200,4,P.a),tx('NO TOCAR MI TAZA',44,'Montserrat',P.s,{bold:true,ls:6})]),'Elegante'],
+ ['Odio los lunes','Tazas',13,(c,P)=>mug(P,[tx('Odio los',80,'Poppins',P.s,BD),tx('LUNES',240,'Luckiest Guy',P.t,{sw:5,sc:'#1a1a2e'},0),tx('😴',110,'Arial','#000000')]),'Divertido'],
+ ['Abuela','Tazas',10,(c,P)=>mug(P,[tx('Abuela',200,'Lobster',P.t),tx('la que más malcría',56,'Poppins',P.s),tx('🧶❤️',90,'Arial','#000000')]),'Orgánico'],
+ ['Hincha','Tazas',12,(c,P)=>mug(P,[tx('⚽',110,'Arial','#000000'),tx('HINCHA',200,'Bebas Neue',P.t),tx('DE CORAZÓN',76,'Bebas Neue',P.a,{},-10)],{back:[c.B('rect',0,.42,1,.16,P.a,{op:.15})]}),'Moderno'],
+ ['Vos y yo','Tazas',6,(c,P)=>mug(P,[tx('Vos',160,'Pacifico',P.t),tx('+',90,'Poppins',P.a,BD,0),tx('Yo',160,'Pacifico',P.t,{},0),tx('= ❤️',70,'Poppins',P.s,BD,10)]),'Elegante'],
+ ['Gran día','Tazas',4,(c,P)=>mug(P,[tx('Hoy va a\nser un gran\ndía',120,'Fraunces','#ffffff',{bold:true,ital:true,lh:1}),tx('✨',90,'Arial','#000000')]),'Moderno'],
+ ['Té de la tarde','Tazas',6,(c,P)=>mug({...P,bg:{pat:'lunares',a:'#ffffff',b:'#ffd6e0',size:120*c.u}},[tx('Té de\nla tarde',160,'Courgette','#c2255c',{lh:1.05}),tx('🫖',100,'Arial','#000000')]),'Orgánico'],
+ ['Navidad taza','Tazas',12,(c,P)=>mug({...P,bg:'#7f1d1d'},[tx('🎄',120,'Arial','#000000'),tx('Feliz Navidad',160,'Great Vibes','#fde68a'),tx('2026',60,'Montserrat','#ffffff',{ls:14,bold:true})]),'Elegante'],
+ ['Emprendedora','Tazas',9,(c,P)=>mug(P,[tx('Mujer',150,'Sacramento','#ffffff'),tx('EMPRENDEDORA',120,'Bebas Neue','#ffffff',{},-20),tx('💪',90,'Arial','#000000')]),'Moderno'],
+ ['Mi perro y yo','Tazas',11,(c,P)=>mug(P,[tx('🐶',150,'Arial','#000000'),tx('Mi perro y yo',110,'Fredoka',P.t,BD),tx('una historia de amor',56,'Caveat',P.s,{bold:true})]),'Infantil'],
+ ['Panorámica','Tazas',2,(c,P)=>mug(P,[tx('PATAGONIA',160,'Anton','#ffffff',{sh:SH}),tx('ARGENTINA',50,'Montserrat','#ffffff',{bold:true,ls:16})],{back:[c.PH(1015,0,0,1,1),c.B('rect',0,0,1,1,'#000000',{op:.2})]}),'Editorial'],
+ ['Good vibes','Remeras',7,(c,P)=>({bg:'',k:1.3,stack:[tx('GOOD',230,'Anton','#111111'),tx('VIBES',230,'Anton','',{sw:4,sc:'#111111'},-30),tx('only',110,'Pacifico','#ef4444',{},-30)]}),'Moderno'],
+ ['Mamá desde','Remeras',6,(c,P)=>({bg:'',k:1.3,stack:[tx('MAMÁ',250,'Bebas Neue','#111111'),tx('desde 2020',100,'Dancing Script','#e84a7f',{bold:true},-30)]}),'Elegante'],
+ ['Team novia','Remeras',8,(c,P)=>({bg:'',k:1.3,stack:[tx('TEAM',170,'Archivo Black','#111111'),tx('Novia',200,'Great Vibes','#c9a227',{},-40),tx('💍 12 · 12 · 2026',50,'Montserrat','#111111',{bold:true,ls:4})]}),'Elegante'],
+ ['Endless summer','Remeras',9,(c,P)=>({bg:'',k:1.3,area:{y:.62,h:.32},back:[c.Q('ellipse',.5,.33,.62,{a:'#ffd166',b:'#ef476f',ang:180}),c.Q('ellipse',.5,.33,.62,'',{sw:8*c.u,sc:'#111111'})],stack:[tx('ENDLESS\nSUMMER',140,'Alfa Slab One','#111111',{lh:1}),tx('PLAYA · SOL · MAR',44,'Montserrat','#ef476f',{bold:true,ls:10})]}),'Retro'],
+ ['Club','Remeras',3,(c,P)=>({bg:'',k:1.3,stack:[tx('ATLÉTICO',120,'Alfa Slab One','#1e3a8a',{curve:110}),tx('10',400,'Alfa Slab One','#1e3a8a',{sw:7,sc:'#facc15'},0),tx('BARRIO NORTE',64,'Alfa Slab One','#1e3a8a',{ls:6},0)]}),'Retro'],
+ ['Café y código','Remeras',2,(c,P)=>({bg:'',k:1.3,stack:[tx('<café/>',130,'Space Mono','#111111',BD),tx('y código',100,'Space Mono','#16a34a',BD,0),tx('{ todo el día }',50,'Space Mono','#6b7280')]}),'Moderno'],
+ ['Familia','Remeras',0,(c,P)=>({bg:'',k:1.3,stack:[tx('FAMILIA',180,'Bebas Neue','#111111'),tx('Pérez',220,'Pacifico','#ef4444',{},-50),tx('EST. 2010',50,'Montserrat','#111111',{ls:12,bold:true},-10)]}),'Divertido'],
+ ['Cumpleañero','Remeras',13,(c,P)=>({bg:'',k:1.3,stack:[tx('🎂',160,'Arial','#000000'),tx('CUMPLE',170,'Luckiest Guy','#f97316',{sw:4,sc:'#111111'}),tx('Valen · 8 años',84,'Fredoka','#7c3aed',BD)]}),'Infantil'],
+ ['Rock','Remeras',2,(c,P)=>({bg:'',k:1.3,stack:[tx('ROCK',280,'Black Ops One','#111111'),tx('and roll',110,'Rock Salt','#ef4444',{rot:-6},-20),tx('★ ★ ★',60,'Arial','#111111',{},40)]}),'Retro'],
+ ['Plant lover','Remeras',12,(c,P)=>({bg:'',k:1.3,stack:[tx('🌿',160,'Arial','#000000'),tx('Plant\nlover',190,'Fraunces','#14532d',{ital:true,lh:.95})]}),'Orgánico'],
+ ['No pain','Remeras',2,(c,P)=>({bg:'',k:1.3,stack:[tx('NO PAIN',170,'Anton','#111111'),tx('NO GAIN',170,'Anton','',{sw:4,sc:'#111111'},-20),tx('🏋️',110,'Arial','#000000')]}),'Moderno'],
+ ['Explorar','Remeras',12,(c,P)=>({bg:'',k:1.3,area:{y:.06,h:.5},back:[c.Q('ellipse',.5,.31,.72,'',{sw:9*c.u,sc:'#111111'})],cols:[{area:{y:.62,h:.32},stack:[tx('MORE',170,'Bebas Neue','#111111'),tx('Bariloche · 2026',64,'Caveat','#111111',BD,0)]}],stack:[tx('🏔️',170,'Arial','#000000'),tx('EXPLORE',100,'Bebas Neue','#111111',{ls:10})]}),'Editorial'],
+ ['Hecho con amor','Remeras',6,(c,P)=>({bg:'',k:1.3,stack:[tx('HECHO',140,'Archivo Black','#111111'),tx('con amor',140,'Sacramento','#e84a7f',{},-30),tx('y mucho mate 🧉',60,'Poppins','#111111')]}),'Orgánico'],
+ ['Ser feliz','Remeras',7,(c,P)=>({bg:'',k:1.3,stack:[tx('ser feliz\nes gratis',150,'Gloria Hallelujah','#111111'),tx('☺',110,'Arial','#111111')]}),'Divertido'],
+ ['Dog mom','Remeras',6,(c,P)=>({bg:'',k:1.3,stack:[tx('🐾',150,'Arial','#000000'),tx('DOG\nMOM',240,'Anton','#111111',{lh:.95}),tx('(o dad)',70,'Caveat','#e84a7f',BD)]}),'Divertido'],
 ];
 const picP={};
 function loadPic(key){const[,id,w,h]=key.match(/^pic-(\d+)-(\d+)x(\d+)$/);return assets[key]?Promise.resolve(key):picP[key]??=fetch(`https://picsum.photos/id/${id}/${w}/${h}`).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(blobToURL).then(src=>addAsset(src,key)).catch(()=>{delete picP[key];return null})}
@@ -944,35 +975,39 @@ function buildTpl(d,W,H,P,thumb){
       B:(k,fx,fy,fw,fh,fill,o)=>sh(k,fx*W,fy*H,fw*W,fh*H,fill,o),F:(i,col)=>sh('rect',i*m,i*m,W-2*i*m,H-2*i*m,'',{sw:Math.max(2,4*u),sc:col}),
       PH:(id,fx,fy,fw,fh,o)=>ph(id,fx*W,fy*H,fw*W,fh*H,o),PQ:(id,fx,fy,fd,o)=>ph(id,fx*W-fd*m/2,fy*H-fd*m/2,fd*m,fd*m,o),
       T:(text,size,font,fill,fx,fy,fw,o={})=>{const t={id:uid(),rot:0,op:1,type:'text',text,size:Math.max(6,Math.round(size*u)),font,fill,align:'center',lh:1.12,x:fx*W,y:fy*H,w:fw*W,...clone(o)};if(t.sw)t.sw*=u;if(t.ls)t.ls*=u;fitText(t);return t}};
-    pics.length=0;let wfit=9;const r=d[3](c,P),A={x:.08,y:.06,w:.84,h:.88,...r.area},al=r.align||'center',ax=A.x*W,aw=A.w*W,items=[];
-    const px=w=>al==='left'?ax:al==='right'?ax+aw-w:ax+(aw-w)/2;
-    for(const it of r.stack){
-      const g=(it.g??26)*u;
-      if(it.k==='l'){const w=it.w*u,h=it.h*u;items.push({g,h,o:[sh('rect',px(w),0,w,h,it.fill,{rad:h/2})]});continue}
-      const o={id:uid(),rot:0,op:1,type:'text',text:it.text,size:Math.max(6,Math.round(it.size*u)),font:it.font,fill:it.fill,align:al,lh:1.12,x:ax,y:0,w:aw,...clone(it.x)};
-      if(o.sw)o.sw*=u;if(o.ls)o.ls*=u;
-      if(it.k==='p'){mctx.font=fontStr(o);if('letterSpacing'in mctx)mctx.letterSpacing='0px';const w=Math.min(aw,mctx.measureText(o.text).width+o.size*2.4),h=o.size*2.4;o.w=w;o.x=px(w);o.align='center';fitText(o);o.dy=(h-o.h)/2;items.push({g,h,o:[sh('rect',o.x,0,w,h,it.bg,{rad:h/2}),o]})}
-      else{fitText(o);if(!o.curve){mctx.font=fontStr(o);if('letterSpacing'in mctx)mctx.letterSpacing=(o.ls||0)+'px';for(const wd of(o.upper?o.text.toUpperCase():o.text).split(/\s+/))wfit=Math.min(wfit,aw/(mctx.measureText(wd).width+1))}items.push({g,h:o.h,o:[o]})}
-    }
-    const total=items.reduce((s,it,i)=>s+it.h+(i?it.g:0),0),ah=A.h*H;
-    let y=A.y*H+(r.valign==='bottom'?ah-total:r.valign==='top'?0:(ah-total)/2);
-    items.forEach((it,i)=>{if(i)y+=it.g;it.o.forEach(o=>{o.y=y+(o.dy||0);delete o.dy});y+=it.h});
-    return{fit:Math.min(ah/total,wfit),page:{bg:r.bg??P.bg,objs:[...(r.back||[]),...items.flatMap(it=>it.o),...(r.front||[])]}};
+    pics.length=0;let wfit=9;const r=d[3](c,P);
+    const U=u*(r.k||1),lay=(stack,area,al='center',valign)=>{
+      const A={x:.08,y:.06,w:.84,h:.88,...area},ax=A.x*W,aw=A.w*W,items=[],px=w=>al==='left'?ax:al==='right'?ax+aw-w:ax+(aw-w)/2;
+      for(const it of stack){
+        const g=(it.g??26)*U;
+        if(it.k==='l'){const w=it.w*U,h=it.h*U;items.push({g,h,o:[sh('rect',px(w),0,w,h,it.fill,{rad:h/2})]});continue}
+        const o={id:uid(),rot:0,op:1,type:'text',text:it.text,size:Math.max(6,Math.round(it.size*U)),font:it.font,fill:it.fill,align:al,lh:1.12,x:ax,y:0,w:aw,...clone(it.x)};
+        if(o.sw)o.sw*=U;if(o.ls)o.ls*=U;
+        if(it.k==='p'){mctx.font=fontStr(o);if('letterSpacing'in mctx)mctx.letterSpacing='0px';const w=Math.min(aw,mctx.measureText(o.text).width+o.size*2.4),h=o.size*2.4;o.w=w;o.x=px(w);o.align='center';fitText(o);o.dy=(h-o.h)/2;items.push({g,h,o:[sh('rect',o.x,0,w,h,it.bg,{rad:h/2}),o]})}
+        else{fitText(o);if(!o.curve){mctx.font=fontStr(o);if('letterSpacing'in mctx)mctx.letterSpacing=(o.ls||0)+'px';for(const wd of(o.upper?o.text.toUpperCase():o.text).split(/\s+/))wfit=Math.min(wfit,aw/(mctx.measureText(wd).width+1))}items.push({g,h:o.h,o:[o]})}
+      }
+      const total=items.reduce((s,it,i)=>s+it.h+(i?it.g:0),0),ah=A.h*H;
+      let y=A.y*H+(valign==='bottom'?ah-total:valign==='top'?0:(ah-total)/2);
+      items.forEach((it,i)=>{if(i)y+=it.g;it.o.forEach(o=>{o.y=y+(o.dy||0);delete o.dy});y+=it.h});
+      return{fit:total?ah/total:9,objs:items.flatMap(it=>it.o)};
+    };
+    const parts=[lay(r.stack||[],r.area,r.align,r.valign),...(r.cols||[]).map(k=>lay(k.stack,k.area,k.align||r.align,k.valign))];
+    return{fit:Math.min(wfit,...parts.map(x=>x.fit)),page:{bg:r.bg??P.bg,objs:[...(r.back||[]),...parts.flatMap(x=>x.objs),...(r.front||[])]}};
   };
   let u=m/1080*(H/W>1.5?1.32:H/W>1.2?1.08:1),r=mk(u);
   for(let i=0;i<4&&r.fit<1;i++){u*=Math.max(.6,r.fit*.97);r=mk(u)}
   return{...r.page,pics:[...pics]};
 }
-const tplFonts=()=>{const n=()=>({}),c={W:1,H:1,m:1,u:1,E:n,Q:n,B:n,F:n,X:n,PH:n,PQ:n,PX:n,T:(t,s,font)=>({font})};return[...new Set(DESIGNS.flatMap(d=>{const r=d[3](c,PALS[0]);return[...r.stack,...(r.front||[])].map(i=>i.font)}).filter(Boolean))]};
-const ts={fmt:0,theme:'Todos',style:'Todos',pal:-1};
-const tplSize=()=>ts.fmt<0?[doc.w,doc.h]:FORMATS[ts.fmt].slice(1);
+const tplFonts=()=>{const n=()=>({}),c={W:1,H:1,m:1,u:1,E:n,Q:n,B:n,F:n,X:n,PH:n,PQ:n,PX:n,T:(t,s,font)=>({font})};return[...new Set(DESIGNS.flatMap(d=>{const r=d[3](c,PALS[0]);return[...(r.stack||[]),...(r.front||[]),...(r.cols||[]).flatMap(k=>k.stack)].map(i=>i.font)}).filter(Boolean))]};
+const ts={fmt:5,theme:'Todos',style:'Todos',pal:-1};
+const tplSize=()=>ts.fmt<0?[doc.w,doc.h]:FORMATS[ts.fmt].slice(1,3);
 async function useTemplate(d){
   const[W,H]=tplSize(),P=PALS[ts.pal<0?d[2]:ts.pal];
   toast('Armando el diseño…',6000);
   const pre=buildTpl(d,W,H,P);await Promise.all([...pre.objs.filter(o=>o.font).map(o=>loadFont(o.font)),...pre.pics.map(loadPic)]);
   const p=buildTpl(d,W,H,P),n=p.objs.length;p.objs=p.objs.filter(o=>o.type!=='image'||assets[o.asset]);
   toast(p.objs.length<n?'No se pudo bajar la foto del diseño. Agregá la tuya desde Subidas o Fotos.':'Diseño listo: cambiá textos, colores y fotos',p.objs.length<n?4000:2200);
-  if(ts.fmt>=0)delete doc.dpi;doc.w=W;doc.h=H;pg().bg=p.bg;pg().objs=p.objs;sel=[];fitZoom();commit();buildInsp();if(isMob())closeSheets();
+  if(ts.fmt>=0){const f=FORMATS[ts.fmt];if(f[3])doc.dpi=f[3];else delete doc.dpi}doc.w=W;doc.h=H;pg().bg=p.bg;pg().objs=p.objs;sel=[];fitZoom();commit();buildInsp();if(isMob())closeSheets();
 }
 const SIZES=[['Post Instagram',1080,1080],['Retrato Instagram',1080,1350],['Historia / Reel / Estado',1080,1920],['Post Facebook',1200,630],['Portada Facebook',1640,624],['Miniatura YouTube',1280,720],['Presentación 16:9',1920,1080],['Post X',1600,900],['Pinterest',1000,1500],['A4 vertical',2480,3508],['A4 horizontal',3508,2480],['Tarjeta personal',1050,600],['Logo',500,500],['Banner web',1500,500]];
 const COLORS=['#ffffff','#f8fafc','#f4efe6','#e5e7eb','#9ca3af','#64748b','#374151','#111827','#000000','#fecaca','#ef4444','#b91c1c','#fed7aa','#f97316','#c2410c','#fef08a','#facc15','#ffb020','#bbf7d0','#22c55e','#15803d','#99f6e4','#14b8a6','#0f766e','#bfdbfe','#3b82f6','#1e40af','#c7d2fe','#6366f1','#3730a3','#e9d5ff','#a855f7','#6b21a8','#fbcfe8','#ec4899','#9d174d'];
@@ -1113,16 +1148,16 @@ function syncBrand(save){Object.assign(BRP,{bg:brand.bg,t:brand.t,s:brand.s,a:br
 syncBrand();
 const PANES={
   plantillas(box){
-    const fs=el('select',{style:'width:100%'},el('option',{value:-1,textContent:`Tamaño actual (${doc.w}×${doc.h})`}),FORMATS.map((f,i)=>el('option',{value:i,textContent:`${f[0]} · ${f[1]}×${f[2]}`})));fs.value=ts.fmt;
+    const fs=el('select',{style:'width:100%'},el('option',{value:-1,textContent:`Tamaño actual (${doc.w}×${doc.h})`}),FORMATS.map((f,i)=>el('option',{value:i,textContent:f[3]?f[0]:`${f[0]} · ${f[1]}×${f[2]}`})));fs.value=ts.fmt;
     const ps=el('select',{style:'width:100%;margin-top:6px'},el('option',{value:-1,textContent:'Colores originales'}),PALS.map((p,i)=>el('option',{value:i,textContent:'Colores: '+p.n})));ps.value=ts.pal;
     const chips=el('div',{className:'chips'}),schips=el('div',{className:'chips'}),g=el('div',{className:'grid'}),cnt=el('p',{className:'hint'});
     const draw=()=>{
-      g.innerHTML='';chips.innerHTML='';schips.innerHTML='';THEMES.forEach(t=>chips.append(el('button',{className:ts.theme===t?'on':'',textContent:t,onclick(){ts.theme=t;draw()}})));
+      g.innerHTML='';chips.innerHTML='';schips.innerHTML='';THEMES.forEach(t=>chips.append(el('button',{className:ts.theme===t?'on':'',textContent:t,onclick(){ts.theme=t;const want=t==='Tazas'?0:t==='Remeras'?2:null,cur=FORMATS[ts.fmt];if(want!=null&&!(cur&&cur[0].startsWith(t==='Tazas'?'Taza':'Remera'))){ts.fmt=want;fs.value=want}draw()}})));
       STYLES.forEach(t=>schips.append(el('button',{className:ts.style===t?'on':'',textContent:t==='Todos'?'Todos los estilos':t,onclick(){ts.style=t;draw()}})));
       const[W,H]=tplSize(),k=300/Math.max(W,H),L=DESIGNS.filter(d=>(ts.theme==='Todos'||d[1]===ts.theme)&&(ts.style==='Todos'||styleOf(d)===ts.style));
       cnt.textContent=L.length?`${L.length} diseños. Tocá uno para usarlo en la página actual.`:'No hay diseños con ese tema y estilo juntos. Probá otra combinación.';
       for(const d of L){
-        const c=mkCanvas(W*k,H*k),p=buildTpl(d,W,H,PALS[ts.pal<0?d[2]:ts.pal],true),paintC=()=>{const x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,c.width,c.height);drawPage(x,p,k,W,H);S=cv.width/doc.w};
+        const c=mkCanvas(W*k,H*k),p=buildTpl(d,W,H,PALS[ts.pal<0?d[2]:ts.pal],true),paintC=()=>{const x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,c.width,c.height);if(!p.bg){x.fillStyle='#ececec';x.fillRect(0,0,c.width,c.height)}drawPage(x,p,k,W,H);S=cv.width/doc.w};
         paintC();if(p.pics.length)Promise.all(p.pics.map(loadPic)).then(()=>{if(c.isConnected)paintC()});
         g.append(el('button',{className:'th fit',style:`aspect-ratio:${Math.max(.6,Math.min(1.9,W/H))}`,title:d[0],onclick:()=>useTemplate(d)},c,el('small',{textContent:d[0]})));
       }

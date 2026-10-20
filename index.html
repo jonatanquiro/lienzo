@@ -727,7 +727,7 @@ function buildInsp(){
   }
   if(o.type==='image'){
     if(o.mock)box.append(sec(o.name||'Producto',true,el('div',{className:'grid g6'},MCOLS.map(([n,c])=>el('button',{className:'sw',title:n,style:`background:${c};${o.color===c?'outline:2px solid var(--ac);outline-offset:2px':''}`,onclick:()=>recolorMock(o,c)}))),
-      MOCKS[o.mock]?.views.back&&el('div',{className:'chips',style:'margin-top:8px'},[['front','Frente'],['back','Espalda']].map(([v,n])=>el('button',{className:(o.view||'front')===v?'on':'',textContent:n,onclick:()=>recolorMock(o,o.color||'#f4f4f4',v)}))),
+      !PHOTOS[o.mock]&&MOCKS[o.mock]?.views.back&&el('div',{className:'chips',style:'margin-top:8px'},[['front','Frente'],['back','Espalda']].map(([v,n])=>el('button',{className:(o.view||'front')===v?'on':'',textContent:n,onclick:()=>recolorMock(o,o.color||'#f4f4f4',v)}))),
       el('div',{className:'acts',style:'margin-top:8px'},el('button',{innerHTML:ic('shirt')+'Poner un diseño',onclick(){openTab('productos',true)}}))));
     if(o.svg&&!o.mock)box.append(sec('Ícono',true,(()=>{const i=el('input',{type:'color',value:o.color||'#222222'});i.onchange=async()=>{for(const x of selObjs())if(x.svg&&/currentColor/.test(x.svg)){x.color=i.value;x.asset=await addAsset(svgURL(x.svg,i.value))}commit()};return el('label',{className:'frow'},el('span',{textContent:'Color'}),i,/currentColor/.test(o.svg)?null:el('small',{textContent:'(este ícono tiene colores fijos)'}))})()));
     else if(!o.mock)box.append(el('div',{className:'acts'},el('button',{innerHTML:ic('crop')+'Recortar',onclick:()=>openCrop(o)}),el('button',{innerHTML:ic('image')+'Reemplazar',onclick:()=>$('#fRepl').click()}),el('button',{textContent:'Usar de fondo',onclick:()=>asBackground(o)})));
@@ -1285,28 +1285,30 @@ const PANES={
         el('p',{className:'hint',textContent:'Si "Ajustar el largo" está activo, el paño se alarga o se acorta solo para que entre todo.'}))].filter(Boolean));
   },
   productos(box){
-    const m=mockTarget(),fi=el('input',{type:'file',accept:'image/*',hidden:true,onchange:async e=>{const f=e.target.files[0];e.target.value='';if(f)try{await putOnMock(await fileToSrc(f))}catch(_){toast('No se pudo abrir esa imagen.')}}});
+    const m=mockTarget(),fi=el('input',{type:'file',accept:'image/*',multiple:true,hidden:true,onchange:e=>{const f=[...e.target.files];e.target.value='';if(f.length)addStamps(f)}});
     const own=el('input',{type:'file',accept:'image/*',hidden:true,onchange:e=>{const f=e.target.files[0];e.target.value='';if(f)addOwnMock(f)}});
-    const thumbs=el('div',{className:'grid g3'});
-    const views=Object.keys(MOCKS[ms.k].views);if(!views.includes(ms.v))ms.v='front';
-    box.append(...[el('h2',{textContent:'Productos'}),el('p',{className:'hint',textContent:'Mostrá cómo queda tu diseño en una remera, buzo, taza, bolsa o gorra, para publicar en redes.'}),
-      el('h3',{textContent:'1. Elegí el producto'}),thumbs,
-      views.length>1&&el('div',{className:'chips'},[['front','Frente'],['back','Espalda']].map(([v,n])=>el('button',{className:ms.v===v?'on':'',textContent:n,onclick:async()=>{ms.v=v;const s=selObjs().find(o=>o.mock&&o.mock===ms.k);if(s)await recolorMock(s,s.color,v);openTab('productos',true)}}))),
-      el('h3',{textContent:'2. Elegí el color'}),el('div',{className:'grid g6'},MCOLS.map(([n,c])=>el('button',{className:'sw',title:n,style:`background:${c};${ms.c===c?'outline:2px solid var(--ac);outline-offset:2px':''}`,onclick:async()=>{ms.c=c;const s=selObjs().find(o=>o.mock);if(s)await recolorMock(s,c);openTab('productos',true)}}))),
-      el('p',{className:'hint',textContent:'Si tenés un producto seleccionado en el lienzo, le cambia el color.'}),
+    const VAR=[['Blanco','#f4f4f4'],['Negro','#1f1f1f'],['Gris melange','#9ca3af'],['Azul marino','#1e3a5f'],['Rojo','#c62828'],['Beige','#e8dcc4'],['Celeste','#90caf9'],['Verde','#2e7d32'],['Rosa','#f8bbd0'],['Bordó','#6d1a2b']];
+    const pick=new Set(['#f4f4f4','#1f1f1f','#9ca3af','#1e3a5f']);
+    box.append(...[el('h2',{textContent:'Productos'}),el('p',{className:'hint',textContent:'Fotos reales: elegí la prenda, el color y tu estampa, y armá la publicación.'}),
+      el('h3',{textContent:'1. Elegí el producto'}),el('div',{className:'grid g3'},Object.entries(PHOTOS).map(([k,P])=>el('button',{className:'th sq',style:'padding:0'+(ms.k===k?';outline:2px solid var(--ac);outline-offset:1px':''),title:P.n,onclick(){ms.k=k;openTab('productos',true)}},el('img',{src:'mockups/'+P.f+'.jpg',loading:'lazy'}),el('small',{textContent:P.n})))),
+      el('h3',{textContent:'2. Elegí el color'}),el('div',{className:'grid g6'},MCOLS.map(([n,c])=>el('button',{className:'sw',title:n,style:`background:${c};${ms.c===c?'outline:2px solid var(--ac);outline-offset:2px':''}`,onclick:async()=>{ms.c=c;const s=mockTarget();if(s&&(selObjs().includes(s)||selObjs().some(o=>o.grp&&o.grp===s.grp)))await recolorMock(s,c);openTab('productos',true)}}))),
+      el('p',{className:'hint',textContent:'Si tenés un producto seleccionado, le cambia el color.'}),
       el('div',{className:'acts'},el('button',{className:'primary',innerHTML:ic('plus')+'Agregar al diseño',onclick:()=>addMock()}),el('button',{innerHTML:ic('layout')+'Armar publicación',onclick:mockPost})),
-      el('h3',{textContent:'3. Poné tu diseño o foto'}),fi,own,
-      el('p',{className:'hint',textContent:m?`Se pone en: ${m.name||'el producto'}${selObjs().includes(m)?' (seleccionado)':''}.`:'Todavía no hay un producto en el lienzo: se agrega solo al poner el diseño.'}),
-      el('div',{className:'acts'},el('button',{innerHTML:ic('upload')+'Subir imagen',onclick:()=>fi.click()}),el('button',{textContent:'Usar la foto seleccionada',onclick:moveSelToMock})),
-      tray.length>0&&el('p',{className:'hint',textContent:'O tocá un diseño de la bandeja (los que mandaste desde Paño):'}),
-      tray.length>0&&el('div',{className:'grid g3'},tray.map(t=>el('button',{className:'th fit sq',style:'background:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%) 0 0/12px 12px',title:t.name,onclick:()=>putOnMock(t.src)},el('img',{src:t.src})))),
-      el('h3',{textContent:'¿Tenés tu propia foto de producto?'}),
-      el('p',{className:'hint',textContent:'Subí una foto de una remera, taza o lo que sea, en blanco y mejor sin fondo (PNG). Le podés cambiar el color y ponerle diseños igual que a las de arriba.'}),
+      el('h3',{textContent:`3. Tus estampas (${stamps.length})`}),fi,
+      el('p',{className:'hint',textContent:'Subí tus diseños una vez (PNG sin fondo es lo ideal) y quedan guardados. Tocá uno para ponerlo en el producto; si ya tenía una estampa, la cambia en el mismo lugar.'}),
+      el('button',{className:'wide',innerHTML:ic('upload')+'Subir estampas',onclick:()=>fi.click()}),
+      stamps.length>0&&el('div',{className:'grid g3',style:'margin-top:8px'},stamps.map(t=>el('div',{className:'th fit sq',style:'cursor:pointer;background:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%) 0 0/12px 12px',title:t.name,onclick:()=>applyStamp(t.src)},el('img',{src:t.src}),el('small',{textContent:t.name}),el('button',{className:'sm del',style:'position:absolute;top:3px;right:3px;padding:2px 4px;min-width:0',innerHTML:ic('x'),title:'Borrar estampa',onclick:async e=>{e.stopPropagation();stamps=stamps.filter(x=>x!==t);await saveStamps();openTab('productos',true)}})))),
+      tray.length>0&&el('p',{className:'hint',textContent:'Diseños de la bandeja (los que armaste en Lienzo):'}),
+      tray.length>0&&el('div',{className:'grid g3'},tray.map(t=>el('button',{className:'th fit sq',style:'background:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%) 0 0/12px 12px',title:t.name,onclick:()=>applyStamp(t.src)},el('img',{src:t.src})))),
+      el('button',{className:'wide',style:'margin-top:8px',textContent:'Usar la imagen seleccionada como estampa',onclick:moveSelToMock}),
+      el('h3',{textContent:'4. Misma estampa, varios colores'}),
+      el('p',{className:'hint',textContent:'Elegí los colores y se arma una página por cada uno, lista para descargar o publicar como carrusel.'}),
+      el('div',{className:'chips'},VAR.map(([n,c])=>{const b=el('button',{className:pick.has(c)?'on':'',innerHTML:`<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${c};border:1px solid #888;margin-right:4px"></span>${n}`,onclick(){pick.has(c)?pick.delete(c):pick.add(c);b.classList.toggle('on')}});return b})),
+      el('button',{className:'wide primary',textContent:'Armar variantes de color',onclick:()=>colorVariants([...pick])}),
+      el('h3',{textContent:'¿Tenés tu propia foto de producto?'}),own,
+      el('p',{className:'hint',textContent:'Subí una foto de tu prenda blanca (mejor sin fondo) y la podés teñir y estampar igual.'}),
       el('button',{className:'wide',innerHTML:ic('upload')+'Subir mi foto de producto',onclick:()=>own.click()}),
-      el('p',{className:'hint',textContent:'El diseño queda agrupado con el producto: si lo movés, se mueve con él. En colores claros se mezcla con las arrugas de la tela para que se vea estampado.'})].filter(Boolean));
-    let i=0;const keys=Object.keys(MOCKS),next=()=>{if(i>=keys.length||!thumbs.isConnected)return;const k=keys[i++];
-      thumbs.append(el('button',{className:'th sq',style:'padding:6px;background:#e9e6e1'+(ms.k===k?';outline:2px solid var(--ac)':''),title:MOCKS[k].n,onclick(){ms.k=k;openTab('productos',true)}},el('img',{src:renderMock(k,'front',ms.c),style:'object-fit:contain'}),el('small',{textContent:MOCKS[k].n})));setTimeout(next,0)};
-    next();
+      el('p',{className:'hint',style:'margin-top:14px',textContent:'Fotos de producto: Pexels (Estefania Milazzo, MART PRODUCTION, cottonbro studio, Mr. Mockup, Marina Podrez, Katrin Bolovtsova, Brando.ltd).'})].filter(Boolean));
   },
   capas(box){box.append(el('h2',{textContent:'Capas'}),el('div',{id:'layList'}));buildLayers()},
 };
@@ -1475,7 +1477,7 @@ const MOCKS={
   seam:['M210 650 Q500 606 790 650','M215 670 Q500 626 785 670'],hl:[['M410 330 Q440 450 420 600',60,.14,30],['M500 640 Q500 700 500 740',80,.06,30]]},
 };
 const MCOLS=[['Blanco','#f4f4f4'],['Negro','#1f1f1f'],['Gris melange','#9ca3af'],['Azul marino','#1e3a5f'],['Celeste','#90caf9'],['Rojo','#c62828'],['Bordó','#6d1a2b'],['Rosa','#f8bbd0'],['Verde','#2e7d32'],['Verde agua','#80cbc4'],['Amarillo','#fdd835'],['Naranja','#ef6c00'],['Violeta','#6a1b9a'],['Beige','#e8dcc4'],['Marrón','#5d4037'],['Lila','#ce93d8']];
-const ms={k:'remera',c:'#f4f4f4',v:'front'};
+const ms={k:'f-hombre',c:'#f4f4f4',v:'front'};
 const isLight=h=>{const n=parseInt((h||'#ffffff').slice(1),16);return(.299*(n>>16&255)+.587*(n>>8&255)+.114*(n&255))>150};
 const mockCache={};
 function renderMock(k,view,color){
@@ -1499,13 +1501,8 @@ function renderMock(k,view,color){
   o.globalCompositeOperation='destination-in';o.drawImage(mc,0,0);
   return mockCache[key]=oc.toDataURL('image/png');
 }
-async function addMock(k=ms.k,color=ms.c,view=ms.v){
-  if(!MOCKS[k].views[view])view='front';
-  const id=await addAsset(renderMock(k,view,color)),s=Math.min(doc.w/1000,doc.h/1100)*.88;
-  return add({type:'image',asset:id,color,mock:k,view,name:MOCKS[k].n+(view==='back'?' (espalda)':''),w:1000*s,h:1100*s,sh:{on:true,c:'#000000',a:.22,b:40*s,x:0,y:22*s}});
-}
 const mockTarget=()=>selObjs().find(o=>o.mock)||selObjs().map(o=>o.grp&&objs().find(x=>x.mock&&x.grp===o.grp)).find(Boolean)||[...objs()].reverse().find(o=>o.mock);
-function mockArea(m){return m.mock==='propia'?{x:.3,y:.22,w:.4,h:.4}:(MOCKS[m.mock]?.views[m.view||'front']||MOCKS[m.mock]?.views.front||{area:{x:.3,y:.22,w:.4,h:.4}}).area}
+function mockArea(m){return PHOTOS[m.mock]?PHOTOS[m.mock].area:m.mock==='propia'?{x:.3,y:.22,w:.4,h:.4}:(MOCKS[m.mock]?.views[m.view||'front']||MOCKS[m.mock]?.views.front||{area:{x:.3,y:.22,w:.4,h:.4}}).area}
 function fitOnMock(m,o){
   const A=mockArea(m),im=assets[o.asset]?.img,c=o.crop||{w:1,h:1},r=im?(im.naturalWidth*c.w)/(im.naturalHeight*c.h):o.w/o.h;
   let w=A.w*m.w,h=w/r;if(h>A.h*m.h){h=A.h*m.h;w=h*r}
@@ -1524,7 +1521,7 @@ async function trimAlpha(src){
 }
 async function putOnMock(src){
   let m=mockTarget();if(!m)m=await addMock();src=await trimAlpha(src);
-  const id=await addAsset(src),o={id:uid(),type:'image',asset:id,x:0,y:0,w:10,h:10,rot:0,op:1};objs().push(o);fitOnMock(m,o);sel=[o.id];commit();buildInsp();
+  const id=await addAsset(src),o={id:uid(),type:'image',asset:id,x:0,y:0,w:10,h:10,rot:0,op:1};objs().push(o);fitOnMock(m,o);await adaptInk(o,m.color||'#f4f4f4');sel=[o.id];commit();buildInsp();
   toast('Diseño puesto en la prenda. Movelo o agrandalo como quieras.');
 }
 function moveSelToMock(){
@@ -1540,29 +1537,103 @@ async function tintBase(src,color){
   if(!isLight(color)){x.globalCompositeOperation='screen';x.globalAlpha=.18;x.drawImage(im,0,0);x.globalAlpha=1}
   x.globalCompositeOperation='destination-in';x.drawImage(im,0,0);return c.toDataURL('image/png');
 }
-async function recolorMock(m,c,view){
+/* ───────── productos con fotos reales (Pexels) ─────────
+   Cada foto trae una máscara de la prenda: se tiñe solo la tela (no la piel ni el fondo),
+   conservando sus sombras y arrugas. */
+const PHOTOS={
+ 'f-hombre':{n:'Remera · hombre',f:'hombre-remera',area:{x:.39,y:.31,w:.22,h:.22},cr:'Estefania Milazzo'},
+ 'f-mujer':{n:'Remera · mujer',f:'mujer-remera',area:{x:.39,y:.45,w:.22,h:.18},cr:'MART PRODUCTION'},
+ 'f-espalda':{n:'Remera · espalda',f:'remera-espalda',area:{x:.3,y:.22,w:.4,h:.36},cr:'cottonbro studio'},
+ 'f-plana':{n:'Remera plana',f:'remera-plana',area:{x:.37,y:.27,w:.24,h:.36},cr:'Mr. Mockup'},
+ 'f-percha':{n:'Remera en percha',f:'remera-percha',area:{x:.4,y:.38,w:.2,h:.3},cr:'Marina Podrez'},
+ 'f-buzo':{n:'Buzo con capucha',f:'buzo-capucha',area:{x:.37,y:.43,w:.26,h:.2},cr:'MART PRODUCTION'},
+ 'f-buzo-esp':{n:'Buzo · espalda',f:'buzo-capucha-espalda',area:{x:.42,y:.37,w:.16,h:.3},cr:'MART PRODUCTION'},
+ 'f-taza':{n:'Taza',f:'taza',area:{x:.27,y:.3,w:.3,h:.38},cr:'Katrin Bolovtsova'},
+ 'f-bolsa':{n:'Bolsa tote',f:'bolsa',area:{x:.33,y:.46,w:.34,h:.36},cr:'Brando.ltd'},
+};
+const photoImg={},photoTint={};
+const loadPhoto=f=>photoImg[f]??=Promise.all([loadImg('mockups/'+f+'.jpg'),loadImg('mockups/'+f+'-mask.png')]);
+async function tintPhoto(k,color){
+  const key=k+color;if(photoTint[key])return photoTint[key];
+  const P0=PHOTOS[k],[im,mk]=await loadPhoto(P0.f),W=im.naturalWidth,H=im.naturalHeight,c=mkCanvas(W,H),x=c.getContext('2d');x.drawImage(im,0,0);
+  if(color.toLowerCase()==='#f4f4f4')return photoTint[key]=c.toDataURL('image/jpeg',.92);
+  const d=x.getImageData(0,0,W,H),P=d.data,mc=mkCanvas(W,H),mx=mc.getContext('2d');mx.drawImage(mk,0,0,W,H);const M=mx.getImageData(0,0,W,H).data;
+  const ls=[];for(let i=0;i<W*H;i+=7)if(M[i*4+3]>200)ls.push(.299*P[i*4]+.587*P[i*4+1]+.114*P[i*4+2]);ls.sort((a,b)=>a-b);const ref=ls[Math.floor(ls.length*.9)]||230;
+  const cr=parseInt(color.slice(1,3),16),cg=parseInt(color.slice(3,5),16),cb=parseInt(color.slice(5,7),16),lum=(.299*cr+.587*cg+.114*cb)/255;
+  for(let i=0;i<W*H;i++){const a=M[i*4+3]/255;if(!a)continue;const j=i*4,k2=Math.min(1.08,(.299*P[j]+.587*P[j+1]+.114*P[j+2])/ref),kk=lum<.4?.25+.75*k2:k2,sh=lum<.4?Math.pow(Math.max(0,k2-.55),2)*90:0;
+    P[j]=P[j]*(1-a)+(cr*kk+sh)*a;P[j+1]=P[j+1]*(1-a)+(cg*kk+sh)*a;P[j+2]=P[j+2]*(1-a)+(cb*kk+sh)*a}
+  x.putImageData(d,0,0);return photoTint[key]=c.toDataURL('image/jpeg',.92);
+}
+const mockSrc=(k,view,color)=>PHOTOS[k]?tintPhoto(k,color):Promise.resolve(renderMock(k,view,color));
+const mockName=(k,view)=>PHOTOS[k]?PHOTOS[k].n:MOCKS[k].n+(view==='back'?' (espalda)':'');
+async function addMock(k=ms.k,color=ms.c,view=ms.v){
+  if(PHOTOS[k]){
+    toast('Preparando el producto…',4000);let src;try{src=await mockSrc(k,view,color)}catch(e){return toast('No se pudo cargar la foto del producto. Revisá tu conexión.')}
+    const id=await addAsset(src),im=assets[id].img,s=Math.min(doc.w/im.naturalWidth,doc.h/im.naturalHeight);
+    return add({type:'image',asset:id,color,mock:k,name:PHOTOS[k].n,credit:`Foto de ${PHOTOS[k].cr} en Pexels`,w:im.naturalWidth*s,h:im.naturalHeight*s});
+  }
+  if(!MOCKS[k].views[view])view='front';
+  const id=await addAsset(renderMock(k,view,color)),s=Math.min(doc.w/1000,doc.h/1100)*.88;
+  return add({type:'image',asset:id,color,mock:k,view,name:mockName(k,view),w:1000*s,h:1100*s,sh:{on:true,c:'#000000',a:.22,b:40*s,x:0,y:22*s}});
+}
+async function recolorMock(m,c,view,quiet){
   if(view)m.view=view;m.color=c;
-  if(m.mock==='propia')m.asset=await addAsset(isLight(c)&&c.toLowerCase()==='#f4f4f4'?assets[m.base].src:await tintBase(assets[m.base].src,c));
-  else{delete m.svg;if(!MOCKS[m.mock].views[m.view||'front'])m.view='front';m.asset=await addAsset(renderMock(m.mock,m.view||'front',c));m.name=MOCKS[m.mock].n+(m.view==='back'?' (espalda)':'')}
-  objs().forEach(x=>{if(x!==m&&x.grp&&x.grp===m.grp&&x.type==='image')x.blend=isLight(c)?'multiply':'source-over'});commit();buildInsp();
+  if(m.mock==='propia')m.asset=await addAsset(c.toLowerCase()==='#f4f4f4'?assets[m.base].src:await tintBase(assets[m.base].src,c));
+  else if(PHOTOS[m.mock])m.asset=await addAsset(await tintPhoto(m.mock,c));
+  else{delete m.svg;if(!MOCKS[m.mock].views[m.view||'front'])m.view='front';m.asset=await addAsset(renderMock(m.mock,m.view||'front',c));m.name=mockName(m.mock,m.view)}
+  for(const x of objs())if(x!==m&&x.grp&&x.grp===m.grp&&x.type==='image'&&!x.mock){x.blend=isLight(c)?'multiply':'source-over';await adaptInk(x,c)}
+  if(!quiet){commit();buildInsp()}
 }
 async function addOwnMock(f){
   try{
     const src=await fileToSrc(f),base=await addAsset(src),im=assets[base].img,k=Math.min(doc.w*.88/im.naturalWidth,doc.h*.88/im.naturalHeight);
     add({type:'image',asset:base,base,mock:'propia',color:'#f4f4f4',name:'Mi producto',w:im.naturalWidth*k,h:im.naturalHeight*k});
-    toast(/png|webp/.test(f.type)?'Listo: cambiale el color o ponele un diseño.':'Si la foto tiene fondo, quitáselo con IA (panel derecho) para poder cambiarle el color.',5000);
+    toast(/png|webp/.test(f.type)?'Listo: cambiale el color o ponele una estampa.':'Si la foto tiene fondo, quitáselo con IA (panel derecho) para poder cambiarle el color.',5000);
   }catch(e){toast('No se pudo abrir esa imagen.')}
 }
 function mockPost(){
   const go=async()=>{
-    doc=newDoc(1080,1350);cur=0;sel=[];$('#name').value=MOCKS[ms.k].n+' personalizada';pg().bg={a:'#f6f2ec',b:'#ddd3c7',rad:true};
-    const m=await addMock();const s=920/1100;m.w=1000*s;m.h=920;m.x=(1080-m.w)/2;m.y=40;m.sh.b=40;m.sh.y=20;
+    doc=newDoc(1080,1350);cur=0;sel=[];$('#name').value=mockName(ms.k,ms.v);pg().bg='#f6f2ec';
+    const m=await addMock();if(!m)return;const im=assets[m.asset].img,s=Math.min(1080/im.naturalWidth,1020/im.naturalHeight);m.w=im.naturalWidth*s;m.h=im.naturalHeight*s;m.x=(1080-m.w)/2;m.y=0;
     await loadFont('Poppins');
-    const t={id:uid(),type:'text',text:MOCKS[ms.k].n+' personalizada',font:'Poppins',bold:true,size:66,fill:'#222222',align:'center',lh:1.1,x:60,y:1020,w:960,rot:0,op:1},p={id:uid(),type:'text',text:'$ 15.000 · Pedila por WhatsApp',font:'Poppins',size:40,fill:'#555555',align:'center',lh:1.2,x:60,y:1130,w:960,rot:0,op:1};
-    fitText(t);fitText(p);objs().push(t,p);sel=[m.id];fitZoom();commit();buildInsp();openTab('productos',true);toast('Ahora poné tu diseño en la prenda (abajo, en el panel).',4500);
+    const t={id:uid(),type:'text',text:'Remera personalizada',font:'Poppins',bold:true,size:66,fill:'#222222',align:'center',lh:1.1,x:60,y:1060,w:960,rot:0,op:1},p={id:uid(),type:'text',text:'$ 15.000 · Pedila por WhatsApp',font:'Poppins',size:40,fill:'#555555',align:'center',lh:1.2,x:60,y:1170,w:960,rot:0,op:1};
+    fitText(t);fitText(p);objs().push(t,p);sel=[m.id];fitZoom();commit();buildInsp();openTab('productos',true);toast('Ahora elegí una estampa (abajo, en el panel).',4500);
   };
   if(!objs().length)return go();
   modal('Armar publicación',el('p',{textContent:'Se arma una publicación nueva (1080 × 1350) y reemplaza el diseño que tenés abierto. Si lo querés conservar, guardalo o mandalo a la bandeja antes.'}),close=>[el('button',{textContent:'Cancelar',onclick:close}),el('button',{className:'primary',textContent:'Armar publicación',onclick(){close();go()}})]);
+}
+/* estampas con tinta negra: en prendas oscuras la tinta se pasa a blanco, en claras vuelve a negro */
+const inkInfo={},srcId={};
+async function inkOf(src){if(inkInfo[src])return inkInfo[src];const im=await loadImg(src),k=Math.min(1,300/Math.max(im.naturalWidth,im.naturalHeight)),c=mkCanvas(im.naturalWidth*k,im.naturalHeight*k),x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);
+  const d=x.getImageData(0,0,c.width,c.height).data;let n=0,dark=0;for(let i=0;i<d.length;i+=4){if(d[i+3]<128)continue;n++;const mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);if(mx<90&&(mx-mn)<40)dark++}
+  return inkInfo[src]={dark:n?dark/n:0}}
+async function lightInk(src){const im=await loadImg(src),c=mkCanvas(im.naturalWidth,im.naturalHeight),x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height),p=d.data;
+  for(let i=0;i<p.length;i+=4){const mx=Math.max(p[i],p[i+1],p[i+2]),mn=Math.min(p[i],p[i+1],p[i+2]);if(mx<110&&(mx-mn)<45){const v=255-mx*.25;p[i]=p[i+1]=p[i+2]=v}}x.putImageData(d,0,0);return c.toDataURL('image/png')}
+const assetFor=async src=>srcId[src]&&assets[srcId[src]]?srcId[src]:(srcId[src]=await addAsset(src));
+async function adaptInk(x,c){x.inkSrc??=assets[x.asset]?.src;if(!x.inkSrc)return;const info=await inkOf(x.inkSrc);
+  if(!isLight(c)&&info.dark>.35){x.lightSrc??=await lightInk(x.inkSrc);x.asset=await assetFor(x.lightSrc)}else x.asset=await assetFor(x.inkSrc)}
+/* ───────── mis estampas: biblioteca guardada en este navegador ───────── */
+let stamps=[];
+const saveStamps=()=>kv('stamps',stamps).catch(()=>toast('No entran más estampas: borrá algunas.'));
+async function addStamps(files){
+  let n=0;for(const f of files){if(!f.type.startsWith('image/'))continue;try{stamps.unshift({id:uid(),name:f.name.replace(/\.[^.]+$/,''),src:await fileToSrc(f)});n++}catch(e){}}
+  await saveStamps();toast(n?`${n} estampa${n>1?'s':''} guardada${n>1?'s':''}`:'No se pudo abrir ninguna imagen.');openTab('productos',true);
+}
+/* pone la estampa en el producto: si ya tenía una, la reemplaza en el mismo lugar */
+async function applyStamp(src){
+  let m=mockTarget();if(!m){m=await addMock();if(!m)return}
+  const old=m.grp&&objs().find(x=>x!==m&&x.grp===m.grp&&x.type==='image'&&!x.mock);
+  src=await trimAlpha(src);
+  if(old){const id=await addAsset(src),im=assets[id].img,r=im.naturalWidth/im.naturalHeight,cx=old.x+old.w/2,top=old.y,w=Math.sqrt(old.w*old.h*r);old.asset=id;delete old.inkSrc;delete old.lightSrc;await adaptInk(old,m.color||'#f4f4f4');old.crop=undefined;old.w=w;old.h=w/r;old.x=cx-w/2;old.y=top;sel=[old.id];commit();buildInsp();return}
+  await putOnMock(src);
+}
+/* la misma estampa en varios colores: una página por color */
+async function colorVariants(cols){
+  const m=mockTarget();if(!m)return toast('Primero agregá un producto con tu estampa.');
+  toast('Armando las variantes…',8000);const base=clone(pg()),i0=cur;
+  for(const c of cols){if(c===m.color)continue;const p=clone(base);p.objs.forEach(o=>{o.id=uid()});const mm=p.objs.find(o=>o.mock&&o.grp===m.grp)||p.objs.find(o=>o.mock);
+    doc.pages.splice(++cur,0,p);await recolorMock(mm,c,null,true)}
+  cur=i0;sel=[];commit();buildInsp();toast(`Listo: ${doc.pages.length} páginas abajo, una por color. Descargalas todas juntas desde Descargar.`,5000);
 }
 
 /* ───────── ventanas ───────── */
@@ -1709,6 +1780,7 @@ let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(fitZoom,
   fitZoom();commit();buildInsp();
   if(!isMob())openTab('plantillas',true);
   try{tray=await kv('tray')||[]}catch(e){}
+  try{stamps=await kv('stamps')||[]}catch(e){}
   try{const b=await kv('brand');if(b){Object.assign(brand,b);syncBrand()}}catch(e){}
   try{const p=await kv('auto');if(p?.doc?.pages?.some(x=>x.objs.length))await loadPayload(p)}catch(e){}
   if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});

@@ -12,7 +12,7 @@ Editor de imágenes al estilo Canva que es un solo archivo HTML: fotos, textos, 
 - 167 plantillas por tema (tazas, remeras, ventas, frases, redes, eventos, negocio y con foto) y por estilo (minimalista, elegante, retro, neón, divertido, orgánico, moderno, editorial, infantil) que se adaptan solas a cada formato: feed, historia, YouTube, portada, flyer… y 14 combinaciones de colores, más los colores de tu marca.
 - Mi marca: guardá tus colores y tu logo para reutilizarlos.
 - Para estampar y sublimar: medidas en cm (tazas, remeras, gorras, mousepad, almohadón…) a 150, 200 o 300 ppp; descarga espejada y con la medida real guardada en el PNG, JPG y PDF.
-- Productos para mostrar, con sombreado realista: remera clásica, oversize y oversize ranglan acanalada (frente y espalda), musculosa, buzo, buzo con capucha, taza, bolsa y gorra en 16 colores, o tu propia foto de producto; ponés tu diseño encima y armás la publicación para redes.
+- Productos con fotos reales: remera (hombre, mujer, espalda, plana, en percha), buzo con capucha (frente y espalda), taza y bolsa. Se tiñen en 16 colores conservando las arrugas, guardás tus estampas para reutilizarlas, la tinta negra pasa sola a blanco en prendas oscuras y se arma una página por color para publicar.
 - Paños: armá un rollo de 30 a 160 cm de ancho con muchos diseños, repetilos, acomodalos solos y marcá las líneas de corte.
 - Atajo a Google Imágenes: copiás la imagen y la pegás con Ctrl+V.
 - Fondos: colores, degradados, tramas (puntos, rayas, cuadrícula, confeti…) y fotos.
@@ -31,3 +31,7 @@ Desde https://jonatanquiro.github.io/lienzo/ se puede instalar y después abre s
 - **Android (Chrome):** botón "Instalar" arriba, o menú ⋮ → "Instalar aplicación".
 - **iPhone / iPad (Safari):** botón Compartir → "Agregar a inicio".
 - **PC (Chrome o Edge):** botón "Instalar" arriba, o el ícono de instalar en la barra de direcciones.
+
+## Créditos
+
+Fotos de producto de [Pexels](https://www.pexels.com) (licencia de Pexels): Estefania Milazzo, MART PRODUCTION, cottonbro studio, Mr. Mockup, Marina Podrez, Katrin Bolovtsova y Brando.ltd.

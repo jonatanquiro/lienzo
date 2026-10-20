@@ -785,6 +785,9 @@ const PALS=[
 ];
 const FORMATS=[['Feed cuadrado',1080,1080],['Feed vertical 4:5',1080,1350],['Historia / Reel / Estado',1080,1920],['Miniatura YouTube',1280,720],['Post horizontal',1200,630],['Portada Facebook',1640,624],['Pinterest',1000,1500],['Flyer A4',1240,1754],['Tarjeta personal',1050,600]];
 const THEMES=['Todos','Ventas','Frases','Redes','Eventos','Negocio','Con foto'];
+const STYLES=['Todos','Minimalista','Elegante','Retro','Neón','Divertido','Orgánico','Moderno','Editorial','Infantil'];
+const STYLE_OF={};for(const[st,L]of Object.entries({Minimalista:'Minimal|Frase clásica|Recordatorio|Precio|Foto y texto|Tarjeta|Logo|Contacto|Medios de pago|Horarios',Elegante:'Frase elegante|Casamiento|Lanzamiento|Certificado|Lista de precios|Próximamente|Black Friday|Retrato|Colección|Quince|Año nuevo|Día de la madre|Marca',Retro:'Liquidación|Menú|Feria|Polaroid|Cafetería|Miniatura|Combo|Mito o realidad|Inauguración',Neón:'Cyber Monday|Fiesta|En vivo|Ciudad de noche',Divertido:'Sorteo|Feliz finde|Pregunta|Cumpleaños|Gran venta|Hot Sale|Envío gratis|Delivery|Esto o aquello|Seguime|Descuento|2x1|Cupón|Turnos|Torneo',Orgánico:'Manuscrita|Amor propio|Naturaleza|Receta|Buen día|Postres|Gracias|Lunes',Editorial:'Viaje|Inmobiliaria|Gastronomía|Cita sobre foto|Foto de fondo|Blog|Ciudad|Producto',Infantil:'Baby shower|Mascotas|Graduación'}))for(const n of L.split('|'))STYLE_OF[n]=st;
+const styleOf=d=>d[4]||STYLE_OF[d[0]]||'Moderno';
 const SH={on:true,c:'#000000',a:.3,b:20,x:0,y:10};
 const tx=(text,size,font,fill,x={},g)=>({k:'t',text,size,font,fill,x,g});
 const ln=(w,h,fill,g)=>({k:'l',w,h,fill,g});
@@ -883,6 +886,51 @@ const DESIGNS=[
  ['Ciudad de noche','Con foto',2,(c,P)=>({align:'left',valign:'top',area:{x:.08,w:.84,y:.08,h:.84},back:[c.PH(1029,0,0,1,1),c.B('rect',0,0,1,.6,{a:'#000000dd',b:'#00000000',ang:180})],stack:[tx('AFTER OFFICE',130,'Unbounded','#ffffff',{bold:true,lh:1}),tx('Jueves desde las 19 hs · 2x1 en tragos',42,'Poppins','#ffffff')]})],
  ['Podcast','Con foto',4,(c,P)=>({align:c.wide?'left':'center',area:c.wide?{x:.5,w:.44}:{y:.56,h:.4},back:[c.wide?c.PQ(628,.24,.5,.74,{rad:60*c.u}):c.PQ(628,.5,.29,c.tall?.8:.46,{rad:60*c.u})],stack:[pill('🎙 NUEVO EPISODIO',30,'Poppins',P.at,P.a,BD,0),tx('Historias de emprendedores',84,'Outfit',P.t,{bold:true,lh:1.08},40),tx('Escuchalo en Spotify',38,'Poppins',P.s)]})],
  ['Gastronomía','Con foto',10,(c,P)=>({valign:'bottom',area:{y:.08,h:.84},back:[c.PH(292,0,0,1,1),c.B('rect',0,.4,1,.6,{a:'#00000000',b:'#000000e6',ang:180})],stack:[tx('Menú del día',160,'Lobster','#ffffff'),tx('Entrada + principal + postre',44,'Poppins','#ffffff',{},0),pill('$ 12.000',44,'Poppins','#111111','#ffd166',BD,30)]})],
+ ['Pausa','Frases',7,(c,P)=>({bg:'#fafafa',back:[c.B('rect',.4985,.1,.003,.16,P.t)],stack:[tx('pausa.',160,'Fraunces',P.t,{ital:true}),tx('respirá un momento',36,'Inter',P.s,{ls:4})]}),'Minimalista'],
+ ['Básicos','Ventas',7,(c,P)=>({align:'left',area:{x:.12,w:.76},stack:[tx('Colección',40,'Inter',P.s,{ls:6}),tx('Básicos',160,'Inter',P.t,{bold:true},0),ln(80,5,P.a,30),tx('desde $9.900',56,'Inter',P.t,{},30)]}),'Minimalista'],
+ ['Cerrado','Negocio',1,(c,P)=>({stack:[tx('CERRADO',120,'Manrope',P.t,{bold:true,ls:16}),tx('por vacaciones',56,'Cormorant Garamond',P.s,{ital:true},0),tx('volvemos el 15 de enero',34,'Inter',P.s,{ls:4},40)]}),'Minimalista'],
+ ['Número grande','Redes',7,(c,P)=>({align:'left',valign:'bottom',area:{x:.08,w:.84,y:.08,h:.84},front:[c.T('01',300,'Inter',P.a,.07,.04,.6,{bold:true,align:'left'})],stack:[tx('Elegí bien\ntus colores',100,'Inter',P.t,{bold:true,lh:1.05}),tx('Tip de diseño para tu marca',38,'Inter',P.s)]}),'Minimalista'],
+ ['Punto','Negocio',1,(c,P)=>({area:{y:.5,h:.4},back:[c.Q('ellipse',.5,.36,.16,P.a)],stack:[tx('estudio',120,'DM Serif Display',P.t),tx('DISEÑO · FOTOGRAFÍA',28,'Inter',P.s,{ls:10})]}),'Minimalista'],
+ ['Invitación dorada','Eventos',8,(c,P)=>({back:[c.F(.04,P.a),c.F(.055,P.a)],stack:[tx('✦',50,'Arial',P.a),tx('Te invitamos a celebrar',40,'Cormorant Garamond',P.s,{ital:true}),tx('Nuestra boda',150,'Pinyon Script',P.a,{},0),tx('SÁBADO 20 · DICIEMBRE · 2026',30,'Cinzel',P.t,{ls:6}),tx('Salón Imperial · 20 hs',32,'Cormorant Garamond',P.s,{},10)]}),'Elegante'],
+ ['Edición limitada','Ventas',8,(c,P)=>({stack:[tx('NUEVA',36,'Cinzel',P.s,{ls:22}),tx('Colección',170,'Bodoni Moda',P.t,{ital:true},0),ln(120,2,P.a),tx('EDICIÓN LIMITADA',32,'Montserrat',P.a,{ls:14})]}),'Elegante'],
+ ['Monograma','Negocio',1,(c,P)=>({back:[c.Q('ellipse',.5,.44,.5,'',{sw:3*c.u,sc:P.a}),c.Q('ellipse',.5,.44,.46,'',{sw:1*c.u,sc:P.a})],stack:[tx('A&J',170,'Bodoni Moda',P.t,{ital:true}),tx('ESTUDIO JURÍDICO',30,'Cinzel',P.s,{ls:10},110)]}),'Elegante'],
+ ['Spa','Negocio',1,(c,P)=>({stack:[tx('relax',180,'Great Vibes',P.a),tx('SPA & BIENESTAR',40,'Marcellus',P.t,{ls:12},-10),tx('Masajes · Faciales · Aromaterapia',34,'Lora',P.s,{ital:true})]}),'Elegante'],
+ ['Noche de gala','Eventos',8,(c,P)=>({bg:{a:'#1f1f1f',b:'#000000',rad:true},back:[c.F(.05,P.a)],stack:[tx('✦ ✦ ✦',40,'Arial',P.a),tx('NOCHE\nDE GALA',130,'Cinzel',P.t,{lh:1.05}),tx('Black tie · 21 hs',40,'Cormorant Garamond',P.s,{ital:true})]}),'Elegante'],
+ ['San Valentín','Eventos',6,(c,P)=>({back:[c.Q('heart',.5,.47,.78,P.d,{op:.5})],stack:[tx('Te quiero',160,'Alex Brush',P.t),tx('14 DE FEBRERO',40,'Montserrat',P.s,{ls:12,bold:true},0),tx('Regalos desde $5.000 💝',44,'Poppins',P.s)]}),'Elegante'],
+ ['Años 70','Frases',10,(c,P)=>({bg:'#f4e3c3',area:{y:.05,h:.5},back:[c.E(.5,1.08,1.2,'#c8553d'),c.E(.5,1.08,.98,'#e9a03b'),c.E(.5,1.08,.76,'#f2c14e'),c.E(.5,1.08,.54,'#5b8e7d'),c.E(.5,1.08,.32,'#f4e3c3')],stack:[tx('SOLAMENTE',40,'Montserrat','#c8553d',{bold:true,ls:10}),tx('buenas\nvibras',160,'Lilita One','#5b3a29',{lh:.95})]}),'Retro'],
+ ['Burger','Negocio',13,(c,P)=>({area:{y:.14,h:.72},back:[c.B('rect',0,0,1,.1,{pat:'damero',a:'#ffffff',b:'#111111',size:60*c.u}),c.B('rect',0,.9,1,.1,{pat:'damero',a:'#ffffff',b:'#111111',size:60*c.u})],stack:[tx('🍔',140,'Arial','#000000'),tx('Burger',180,'Lobster',P.t,{sh:{on:true,c:'#000000',a:.35,b:0,x:8,y:8}}),tx('& MALTEADAS',64,'Bebas Neue',P.a,{},0),pill('ABIERTO HASTA LAS 2',32,'Poppins','#ffffff','#1a1a2e',BD)]}),'Retro'],
+ ['Almacén','Ventas',10,(c,P)=>({back:[c.F(.04,P.t),c.F(.055,P.t)],stack:[tx('EST. 1985',30,'Special Elite',P.s,{ls:8}),tx('ALMACÉN',150,'Alfa Slab One',P.t),tx('de barrio',90,'Kaushan Script',P.a,{},-30),tx('Productos de siempre, precios de hoy',36,'Courier Prime',P.s)]}),'Retro'],
+ ['Pixel','Redes',2,(c,P)=>({bg:{pat:'cuadricula',a:'#0b0b2b',b:'#1c1c4a',size:60*c.u},stack:[tx('GAME OVER?',90,'Press Start 2P','#ff4d6d'),tx('NO, RECIÉN\nEMPIEZA',40,'Press Start 2P','#00e5ff',{lh:1.5},40),pill('PRESS START',28,'Press Start 2P','#0b0b2b','#ffd166',{},60)]}),'Retro'],
+ ['Verano retro','Ventas',11,(c,P)=>({back:[c.Q('burst',.84,.14,.3,'#ffd166',{rot:10})],stack:[tx('¡NUEVO!',64,'Bangers',P.a,{rot:-6}),tx('Ofertas\nde verano',160,'Chewy',P.t,{lh:1}),tx('★ Todo con 30% OFF ★',44,'Courier Prime',P.s,{bold:true})]}),'Retro'],
+ ['Open 24','Negocio',2,(c,P)=>({bg:'#0d0221',stack:[tx('Open',190,'Pacifico','#ffffff',{sh:{on:true,c:'#ff2bd6',a:1,b:50,x:0,y:0}}),tx('24 HORAS',76,'Monoton','#00e5ff',{sh:{on:true,c:'#00e5ff',a:1,b:30,x:0,y:0}},10)]}),'Neón'],
+ ['Synthwave','Eventos',2,(c,P)=>({bg:{a:'#000000',b:'#1a0033',ang:180},area:{y:.05,h:.5},back:[c.E(.5,.6,.55,{a:'#ffd166',b:'#ff2bd6',ang:180}),c.B('rect',0,.6,1,.4,{pat:'cuadricula',a:'#1a0033',b:'#ff2bd6',size:70*c.u})],stack:[tx('SYNTH',170,'Audiowide','#ffffff',{sh:{on:true,c:'#ff2bd6',a:1,b:40,x:0,y:0}}),tx('FIESTA RETRO 80s',44,'Orbitron','#00e5ff',{bold:true})]}),'Neón'],
+ ['Stream','Redes',2,(c,P)=>({bg:'#0a0a0a',back:[c.B('para',-.1,.38,1.2,.24,'#7c3aed',{op:.3})],stack:[tx('STREAM',200,'Russo One','#ffffff',{sh:{on:true,c:'#7c3aed',a:1,b:40,x:0,y:0}}),tx('HOY 21 HS',60,'Orbitron','#22d3ee',{bold:true}),pill('twitch.tv/tucanal',34,'Poppins','#ffffff','#7c3aed',BD)]}),'Neón'],
+ ['Neón verde','Ventas',2,(c,P)=>({bg:'#050510',back:[c.B('rect',.08,.08,.84,.84,'',{sw:6*c.u,sc:'#39ff14',rad:40*c.u,sh:{on:true,c:'#39ff14',a:1,b:30,x:0,y:0}})],stack:[tx('-30%',280,'Bebas Neue','#39ff14',{sh:{on:true,c:'#39ff14',a:.9,b:40,x:0,y:0}}),tx('SOLO ESTE FINDE',50,'Montserrat','#ffffff',{bold:true,ls:8},0)]}),'Neón'],
+ ['Burbujas','Redes',13,(c,P)=>({bg:'#fff8e7',back:[c.E(.15,.18,.26,'#ffd166'),c.E(.86,.24,.18,'#06d6a0'),c.E(.82,.86,.32,'#118ab2'),c.E(.18,.84,.14,'#ef476f',{op:.9})],stack:[tx('¡Hola!',220,'Titan One','#ef476f'),tx('¿Ya conocés nuestros productos?',50,'Fredoka','#073b4c',BD),pill('MIRÁ EL CATÁLOGO',34,'Poppins','#ffffff','#073b4c',BD)]}),'Divertido'],
+ ['Pop art','Ventas',13,(c,P)=>({bg:{pat:'puntos',a:'#ffd60a',b:'#ff006e',size:40*c.u},back:[c.Q('burst',.5,.48,.92,'#ffffff')],area:{x:.18,w:.64},stack:[tx('¡WOW!',220,'Bangers','#ff006e',{sw:6,sc:'#000000'}),tx('PRECIOS\nINCREÍBLES',64,'Bangers','#000000',{lh:1})]}),'Divertido'],
+ ['Stickers','Redes',5,(c,P)=>({back:[c.Q('star',.15,.15,.18,'#ffd166',{rot:-12}),c.Q('heart',.86,.18,.16,'#ef476f',{rot:14}),c.Q('flower',.12,.86,.18,'#ffffff'),c.Q('bolt',.88,.84,.16,'#ffd166')],stack:[tx('Viernes',160,'Lilita One','#ffffff',{sh:SH}),tx('de descuentos',84,'Caveat','#ffffff',{bold:true},0),pill('VER TODO',34,'Poppins','#11998e','#ffffff',BD)]}),'Divertido'],
+ ['Garabato','Frases',6,(c,P)=>({stack:[tx('hacé lo que\nte haga feliz',120,'Gloria Hallelujah',P.t),tx('☺',110,'Arial',P.a)]}),'Divertido'],
+ ['Solo miro','Redes',7,(c,P)=>({align:'left',area:{x:.1,w:.8},stack:[tx('YO:',90,'Anton',P.t),tx('“solo miro”',80,'Poppins',P.s,{ital:true},0),tx('TAMBIÉN YO:',90,'Anton',P.t,{},60),tx('🛒🛒🛒',140,'Arial','#000000',{},0)]}),'Divertido'],
+ ['Halloween','Eventos',2,(c,P)=>({bg:'#1a1025',back:[c.E(.82,.18,.34,'#f97316'),c.E(.86,.15,.3,'#1a1025')],stack:[tx('🎃',150,'Arial','#000000'),tx('Noche de\nterror',160,'Creepster','#f97316',{lh:1}),tx('31 de octubre · Disfraz obligatorio',42,'Poppins','#e9d5ff')]}),'Divertido'],
+ ['Slow living','Frases',10,(c,P)=>({bg:'#efe6da',back:[c.Q('blob',.2,.2,.55,'#d9b99b',{op:.6}),c.Q('blob',.85,.85,.6,'#c8553d',{op:.25,rot:90})],stack:[tx('Slow\nliving',170,'Fraunces',P.t,{ital:true,lh:1}),tx('DISFRUTÁ EL PROCESO',32,'Montserrat',P.s,{ls:10})]}),'Orgánico'],
+ ['Hecho a mano','Negocio',10,(c,P)=>({back:[c.Q('blob',.5,.47,.88,'#ffffff',{op:.7})],stack:[tx('hecho',110,'Homemade Apple',P.a),tx('A MANO',150,'Bebas Neue',P.t,{},-10),tx('Cerámica · Velas · Jabones',38,'Lora',P.s,{ital:true})]}),'Orgánico'],
+ ['Natural','Ventas',12,(c,P)=>({back:[c.Q('drop',.12,.12,.2,P.d,{rot:-30,op:.5}),c.Q('drop',.9,.88,.26,P.d,{rot:150,op:.5})],stack:[tx('🌿',110,'Arial','#000000'),tx('Cuidá lo\nque te cuida',120,'DM Serif Display',P.t),tx('Productos 100% naturales',38,'Poppins',P.s)]}),'Orgánico'],
+ ['Merienda','Negocio',10,(c,P)=>({back:[c.Q('ellipse',.5,.4,.5,'#c8a27a',{op:.35})],stack:[tx('☕',150,'Arial','#000000'),tx('Merienda',160,'Courgette',P.t),tx('Café + 2 medialunas $3.500',44,'Poppins',P.s)]}),'Orgánico'],
+ ['Bloques','Ventas',7,(c,P)=>({align:'left',area:{x:.06,w:.88,y:.04,h:.42},back:[c.B('rect',0,0,1,.5,P.a),c.B('rect',.5,.5,.5,.5,P.t)],front:[c.T('-40%',150,'Archivo Black','#ffffff',.52,.66,.44),c.T('Ver tienda →',40,'Inter',P.t,.06,.84,.4,{bold:true,align:'left'})],stack:[tx('NUEVA\nTEMPORADA',120,'Archivo Black','#ffffff',{lh:1})]}),'Moderno'],
+ ['Diseño que vende','Negocio',9,(c,P)=>({align:'left',area:{x:.1,w:.8},back:[c.Q('blob',.82,.2,.8,'#ffffff',{op:.12}),c.Q('blob',.2,.86,.7,'#000000',{op:.1})],stack:[tx('Diseño que\nvende.',140,'Plus Jakarta Sans','#ffffff',{bold:true,lh:1}),tx('Branding · Redes · Web',40,'Plus Jakarta Sans','#ffffff'),pill('Escribinos',34,'Plus Jakarta Sans',P.at,P.a,BD)]}),'Moderno'],
+ ['Marketing','Negocio',7,(c,P)=>({align:'left',area:{x:.5,w:.44},back:[c.B('rect',0,0,.42,1,P.a)],stack:[tx('Marketing\ndigital',110,'Urbanist',P.t,{bold:true,lh:1}),ln(80,6,P.a),tx('Estrategia, contenido y anuncios para tu negocio.',38,'Urbanist',P.s),pill('Agendá una llamada',30,'Urbanist',P.at,P.a,BD)]}),'Moderno'],
+ ['Tipográfico','Frases',2,(c,P)=>({stack:[tx('CREAR',230,'Unbounded',P.t,{bold:true}),tx('CREAR',230,'Unbounded','',{bold:true,sw:2,sc:P.t},-30),tx('CREAR',230,'Unbounded',P.a,{bold:true},-30)]}),'Moderno'],
+ ['App','Negocio',3,(c,P)=>({bg:{a:'#0f172a',b:'#1e3a8a',ang:135},align:'left',area:{x:.1,w:.8},back:[c.B('rect',0,0,1,1,{pat:'cuadricula',a:'#00000000',b:'#ffffff14',size:80*c.u})],stack:[pill('NUEVO',28,'Space Grotesk','#0f172a','#38bdf8',BD,0),tx('App de\nturnos online',110,'Space Grotesk','#ffffff',{bold:true,lh:1.05},40),tx('Ahorrá tiempo y organizá tu agenda',40,'Space Grotesk','#cbd5e1'),pill('Probala gratis',32,'Space Grotesk','#0f172a','#38bdf8',BD)]}),'Moderno'],
+ ['Día del padre','Eventos',12,(c,P)=>({stack:[tx('FELIZ DÍA',80,'Bebas Neue',P.s,{ls:10}),tx('PAPÁ',270,'Anton',P.a,{},-20),tx('Para el mejor, lo mejor',46,'Poppins',P.t)]}),'Moderno'],
+ ['¡Vamos!','Eventos',12,(c,P)=>({bg:{pat:'columnas',a:'#1b4332',b:'#2d6a4f',size:160*c.u},stack:[tx('⚽',140,'Arial','#000000'),tx('¡VAMOS!',230,'Bebas Neue','#ffffff',{sh:SH}),tx('Mirá el partido con nosotros · Pantalla gigante',42,'Poppins','#d8f3dc')]}),'Moderno'],
+ ['Tapa de revista','Con foto',8,(c,P)=>({align:'left',valign:'bottom',area:{x:.06,w:.88,y:.06,h:.88},back:[c.PH(1027,0,0,1,1),c.B('rect',0,.45,1,.55,{a:'#00000000',b:'#000000cc',ang:180})],front:[c.T('ESTILO',190,'Bodoni Moda','#ffffff',.04,.02,.92,{bold:true})],stack:[tx('Edición\nOtoño 2026',90,'Bodoni Moda','#ffffff',{ital:true,lh:1}),tx('Las tendencias que vienen',38,'Inter','#ffffff')]}),'Editorial'],
+ ['Columna','Frases',1,(c,P)=>({align:'left',area:{x:.1,w:.8},stack:[tx('OPINIÓN',30,'Inter',P.a,{bold:true,ls:10}),tx('Emprender no es para valientes: es para constantes.',84,'Libre Baskerville',P.t,{lh:1.15}),ln(100,3,P.t),tx('Por Ana Pérez',34,'Inter',P.s,{ital:true})]}),'Editorial'],
+ ['Último momento','Redes',7,(c,P)=>({align:'left',area:{x:.08,w:.84,y:.16,h:.78},back:[c.B('rect',0,0,1,.12,'#111111')],front:[c.T('● ÚLTIMO MOMENTO',36,'Inter','#ffffff',.06,.035,.88,{bold:true,ls:6,align:'left'})],stack:[tx('Abrimos nuestra segunda sucursal',100,'Libre Baskerville',P.t,{bold:true,lh:1.1}),tx('Desde el lunes te esperamos en Av. Libertador 1234.',40,'Inter',P.s)]}),'Editorial'],
+ ['Portada de guía','Con foto',1,(c,P)=>({align:'left',area:c.wide?{x:.06,w:.4}:{y:.04,h:.36},back:[c.wide?c.PH(1018,.5,0,.5,1):c.PH(1018,0,.42,1,.58)],stack:[tx('N° 12',30,'Inter',P.a,{bold:true,ls:6}),tx('Montañas\ndel sur',120,'Playfair Display',P.t,{lh:1}),tx('Una guía para perderse',36,'Inter',P.s,{ital:true})]}),'Editorial'],
+ ['Cumple infantil','Eventos',11,(c,P)=>({bg:{pat:'confeti',a:'#fff7ed',b:'#f472b6',size:140*c.u},back:[c.B('rect',.07,.07,.86,.86,'#ffffff',{rad:60*c.u,op:.85})],stack:[tx('🦖',150,'Arial','#000000'),tx('¡Tomás cumple 5!',120,'Fredoka','#7c3aed',BD),tx('Sábado 3 · 16 hs · Pelotero Saltarín',44,'Baloo 2','#334155',BD),pill('¡TE ESPERAMOS!',34,'Fredoka','#ffffff','#f97316',BD)]}),'Infantil'],
+ ['Jardín','Negocio',11,(c,P)=>({back:[c.Q('cloud',.2,.14,.3,'#ffffff'),c.Q('cloud',.82,.2,.24,'#ffffff'),c.Q('ellipse',.86,.86,.2,'#ffd166')],stack:[tx('Inscripciones\nabiertas',120,'Baloo 2',P.t,{bold:true,lh:1}),tx('Jardín Los Pollitos · Salas de 2 a 5',44,'Fredoka',P.s),pill('2026',40,'Fredoka','#ffffff','#ff8fab',BD)]}),'Infantil'],
+ ['¡A jugar!','Frases',13,(c,P)=>({back:[c.Q('star',.14,.16,.16,'#ffd166',{rot:-10}),c.Q('ellipse',.86,.84,.18,'#06d6a0')],stack:[tx('¡A JUGAR!',200,'Luckiest Guy','#ffffff',{sw:6,sc:'#1a1a2e'}),tx('🎈🧸🎨',120,'Arial','#000000')]}),'Infantil'],
+ ['Pascuas','Eventos',11,(c,P)=>({back:[c.E(.1,.1,.24,'#ffffff',{op:.6}),c.E(.9,.9,.3,'#ffffff',{op:.6})],stack:[tx('🐣🥚🐰',120,'Arial','#000000'),tx('¡Felices Pascuas!',120,'Chewy',P.t),tx('Huevos de chocolate artesanales',42,'Poppins',P.s)]}),'Infantil'],
 ];
 const picP={};
 function loadPic(key){const[,id,w,h]=key.match(/^pic-(\d+)-(\d+)x(\d+)$/);return assets[key]?Promise.resolve(key):picP[key]??=fetch(`https://picsum.photos/id/${id}/${w}/${h}`).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(blobToURL).then(src=>addAsset(src,key)).catch(()=>{delete picP[key];return null})}
@@ -894,7 +942,8 @@ function buildTpl(d,W,H,P,thumb){
     const c={W,H,m,u,wide:W/H>1.25,tall:H/W>1.5,X:sh,PX:ph,
       E:(fx,fy,fd,fill,o)=>sh('ellipse',fx*W-fd*m/2,fy*H-fd*m/2,fd*m,fd*m,fill,o),Q:(k,fx,fy,fd,fill,o)=>sh(k,fx*W-fd*m/2,fy*H-fd*m/2,fd*m,fd*m,fill,o),
       B:(k,fx,fy,fw,fh,fill,o)=>sh(k,fx*W,fy*H,fw*W,fh*H,fill,o),F:(i,col)=>sh('rect',i*m,i*m,W-2*i*m,H-2*i*m,'',{sw:Math.max(2,4*u),sc:col}),
-      PH:(id,fx,fy,fw,fh,o)=>ph(id,fx*W,fy*H,fw*W,fh*H,o),PQ:(id,fx,fy,fd,o)=>ph(id,fx*W-fd*m/2,fy*H-fd*m/2,fd*m,fd*m,o)};
+      PH:(id,fx,fy,fw,fh,o)=>ph(id,fx*W,fy*H,fw*W,fh*H,o),PQ:(id,fx,fy,fd,o)=>ph(id,fx*W-fd*m/2,fy*H-fd*m/2,fd*m,fd*m,o),
+      T:(text,size,font,fill,fx,fy,fw,o={})=>{const t={id:uid(),rot:0,op:1,type:'text',text,size:Math.max(6,Math.round(size*u)),font,fill,align:'center',lh:1.12,x:fx*W,y:fy*H,w:fw*W,...clone(o)};if(t.sw)t.sw*=u;if(t.ls)t.ls*=u;fitText(t);return t}};
     pics.length=0;let wfit=9;const r=d[3](c,P),A={x:.08,y:.06,w:.84,h:.88,...r.area},al=r.align||'center',ax=A.x*W,aw=A.w*W,items=[];
     const px=w=>al==='left'?ax:al==='right'?ax+aw-w:ax+(aw-w)/2;
     for(const it of r.stack){
@@ -908,14 +957,14 @@ function buildTpl(d,W,H,P,thumb){
     const total=items.reduce((s,it,i)=>s+it.h+(i?it.g:0),0),ah=A.h*H;
     let y=A.y*H+(r.valign==='bottom'?ah-total:r.valign==='top'?0:(ah-total)/2);
     items.forEach((it,i)=>{if(i)y+=it.g;it.o.forEach(o=>{o.y=y+(o.dy||0);delete o.dy});y+=it.h});
-    return{fit:Math.min(ah/total,wfit),page:{bg:r.bg??P.bg,objs:[...(r.back||[]),...items.flatMap(it=>it.o)]}};
+    return{fit:Math.min(ah/total,wfit),page:{bg:r.bg??P.bg,objs:[...(r.back||[]),...items.flatMap(it=>it.o),...(r.front||[])]}};
   };
   let u=m/1080*(H/W>1.5?1.32:H/W>1.2?1.08:1),r=mk(u);
   for(let i=0;i<4&&r.fit<1;i++){u*=Math.max(.6,r.fit*.97);r=mk(u)}
   return{...r.page,pics:[...pics]};
 }
-const tplFonts=()=>{const n=()=>({}),c={W:1,H:1,m:1,u:1,E:n,Q:n,B:n,F:n,X:n,PH:n,PQ:n,PX:n};return[...new Set(DESIGNS.flatMap(d=>d[3](c,PALS[0]).stack.map(i=>i.font)).filter(Boolean))]};
-const ts={fmt:0,theme:'Todos',pal:-1};
+const tplFonts=()=>{const n=()=>({}),c={W:1,H:1,m:1,u:1,E:n,Q:n,B:n,F:n,X:n,PH:n,PQ:n,PX:n,T:(t,s,font)=>({font})};return[...new Set(DESIGNS.flatMap(d=>{const r=d[3](c,PALS[0]);return[...r.stack,...(r.front||[])].map(i=>i.font)}).filter(Boolean))]};
+const ts={fmt:0,theme:'Todos',style:'Todos',pal:-1};
 const tplSize=()=>ts.fmt<0?[doc.w,doc.h]:FORMATS[ts.fmt].slice(1);
 async function useTemplate(d){
   const[W,H]=tplSize(),P=PALS[ts.pal<0?d[2]:ts.pal];
@@ -1066,11 +1115,12 @@ const PANES={
   plantillas(box){
     const fs=el('select',{style:'width:100%'},el('option',{value:-1,textContent:`Tamaño actual (${doc.w}×${doc.h})`}),FORMATS.map((f,i)=>el('option',{value:i,textContent:`${f[0]} · ${f[1]}×${f[2]}`})));fs.value=ts.fmt;
     const ps=el('select',{style:'width:100%;margin-top:6px'},el('option',{value:-1,textContent:'Colores originales'}),PALS.map((p,i)=>el('option',{value:i,textContent:'Colores: '+p.n})));ps.value=ts.pal;
-    const chips=el('div',{className:'chips'}),g=el('div',{className:'grid'}),cnt=el('p',{className:'hint'});
+    const chips=el('div',{className:'chips'}),schips=el('div',{className:'chips'}),g=el('div',{className:'grid'}),cnt=el('p',{className:'hint'});
     const draw=()=>{
-      g.innerHTML='';chips.innerHTML='';THEMES.forEach(t=>chips.append(el('button',{className:ts.theme===t?'on':'',textContent:t,onclick(){ts.theme=t;draw()}})));
-      const[W,H]=tplSize(),k=300/Math.max(W,H),L=DESIGNS.filter(d=>ts.theme==='Todos'||d[1]===ts.theme);
-      cnt.textContent=`${L.length} diseños. Tocá uno para usarlo en la página actual.`;
+      g.innerHTML='';chips.innerHTML='';schips.innerHTML='';THEMES.forEach(t=>chips.append(el('button',{className:ts.theme===t?'on':'',textContent:t,onclick(){ts.theme=t;draw()}})));
+      STYLES.forEach(t=>schips.append(el('button',{className:ts.style===t?'on':'',textContent:t==='Todos'?'Todos los estilos':t,onclick(){ts.style=t;draw()}})));
+      const[W,H]=tplSize(),k=300/Math.max(W,H),L=DESIGNS.filter(d=>(ts.theme==='Todos'||d[1]===ts.theme)&&(ts.style==='Todos'||styleOf(d)===ts.style));
+      cnt.textContent=L.length?`${L.length} diseños. Tocá uno para usarlo en la página actual.`:'No hay diseños con ese tema y estilo juntos. Probá otra combinación.';
       for(const d of L){
         const c=mkCanvas(W*k,H*k),p=buildTpl(d,W,H,PALS[ts.pal<0?d[2]:ts.pal],true),paintC=()=>{const x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,c.width,c.height);drawPage(x,p,k,W,H);S=cv.width/doc.w};
         paintC();if(p.pics.length)Promise.all(p.pics.map(loadPic)).then(()=>{if(c.isConnected)paintC()});
@@ -1078,7 +1128,7 @@ const PANES={
       }
     };
     fs.onchange=()=>{ts.fmt=+fs.value;draw()};ps.onchange=()=>{ts.pal=+ps.value;draw()};
-    box.append(el('h2',{textContent:'Plantillas'}),fs,ps,chips,cnt,g);
+    box.append(el('h2',{textContent:'Plantillas'}),fs,ps,el('h3',{textContent:'Tema'}),chips,el('h3',{textContent:'Estilo'}),schips,cnt,g);
     draw();Promise.all(tplFonts().map(loadFont)).then(()=>{if(tab==='plantillas'&&g.isConnected)draw()});
   },
   subidas(box){

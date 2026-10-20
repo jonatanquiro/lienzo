@@ -698,7 +698,7 @@ function buildInsp(){
       el('p',{className:'hint',innerHTML:'Elegí algo del panel izquierdo para empezar, o arrastrá imágenes desde tu equipo.<br><br><b>Atajos:</b> Ctrl+Z deshacer · Ctrl+C / V copiar y pegar · Ctrl+D duplicar · Supr borrar · flechas mover · Ctrl+rueda zoom · doble clic edita un texto o recorta una foto · Shift para elegir varios.'}));
     return;
   }
-  const o=L[0],names={image:o.svg?'Ícono':'Imagen',text:'Texto',shape:isLine(o)?'Línea':'Forma',path:'Trazo'};
+  const o=L[0],names={image:o.mock?(o.name||'Producto'):o.svg?'Ícono':'Imagen',text:'Texto',shape:isLine(o)?'Línea':'Forma',path:'Trazo'};
   box.append(el('h2',{textContent:L.length>1?L.length+' elementos':names[o.type]}));
   if(doc.dpi&&L.length===1){
     const keep=o.type!=='shape'&&o.type!=='path',wi=el('input',{type:'number',step:.1,min:.1,style:'width:64px',value:fcm(pxToCm(o.w)).replace(',','.')}),hi=el('input',{type:'number',step:.1,min:.1,style:'width:64px',value:fcm(pxToCm(o.h)).replace(',','.'),disabled:o.type==='text'});
@@ -726,8 +726,9 @@ function buildInsp(){
         el('div',{className:'frow'},el('span',{textContent:'Resaltado'}),(()=>{const i=el('input',{type:'color',value:o.bgc||'#ffe066'});i.oninput=()=>t.set('bgc',i.value);i.onchange=commit;return i})(),el('button',{className:'sm',textContent:'Quitar',onclick(){t.set('bgc','');commit()}}))));
   }
   if(o.type==='image'){
-    if(o.svg)box.append(sec('Ícono',true,(()=>{const i=el('input',{type:'color',value:o.color||'#222222'});i.onchange=async()=>{for(const x of selObjs())if(x.svg&&/currentColor/.test(x.svg)){x.color=i.value;x.asset=await addAsset(svgURL(x.svg,i.value))}commit()};return el('label',{className:'frow'},el('span',{textContent:'Color'}),i,/currentColor/.test(o.svg)?null:el('small',{textContent:'(este ícono tiene colores fijos)'}))})()));
-    else box.append(el('div',{className:'acts'},el('button',{innerHTML:ic('crop')+'Recortar',onclick:()=>openCrop(o)}),el('button',{innerHTML:ic('image')+'Reemplazar',onclick:()=>$('#fRepl').click()}),el('button',{textContent:'Usar de fondo',onclick:()=>asBackground(o)})));
+    if(o.mock)box.append(sec(o.name||'Producto',true,el('div',{className:'grid g6'},MCOLS.map(([n,c])=>el('button',{className:'sw',title:n,style:`background:${c};${o.color===c?'outline:2px solid var(--ac);outline-offset:2px':''}`,onclick:()=>recolorMock(o,c)}))),el('div',{className:'acts',style:'margin-top:8px'},el('button',{innerHTML:ic('shirt')+'Poner un diseño',onclick(){openTab('productos',true)}}))));
+    if(o.svg&&!o.mock)box.append(sec('Ícono',true,(()=>{const i=el('input',{type:'color',value:o.color||'#222222'});i.onchange=async()=>{for(const x of selObjs())if(x.svg&&/currentColor/.test(x.svg)){x.color=i.value;x.asset=await addAsset(svgURL(x.svg,i.value))}commit()};return el('label',{className:'frow'},el('span',{textContent:'Color'}),i,/currentColor/.test(o.svg)?null:el('small',{textContent:'(este ícono tiene colores fijos)'}))})()));
+    else if(!o.mock)box.append(el('div',{className:'acts'},el('button',{innerHTML:ic('crop')+'Recortar',onclick:()=>openCrop(o)}),el('button',{innerHTML:ic('image')+'Reemplazar',onclick:()=>$('#fRepl').click()}),el('button',{textContent:'Usar de fondo',onclick:()=>asBackground(o)})));
     const src=assets[o.asset]?.src;
     box.append(sec('Filtros',!o.svg,el('div',{className:'grid g4'},PRESETS.map(([n,f])=>el('button',{className:'flt',title:n,style:`background-image:url("${src&&src.length<3e6?src:''}");filter:${filterStr(f)||'none'}`,onclick(){selObjs().forEach(x=>{if(x.type==='image')x.f={...f}});commit();buildInsp()}},el('small',{textContent:n}))))),
       sec('Ajustes',false,fRange(t,'Brillo','f.br',0,2,.02,1),fRange(t,'Contraste','f.ct',0,2,.02,1),fRange(t,'Saturación','f.sat',0,3,.02,1),fRange(t,'Tono','f.hue',-180,180,1,0),fRange(t,'Desenfoque','f.blur',0,30,.5,0),fRange(t,'Gris','f.gray',0,1,.02,0),fRange(t,'Sepia','f.sepia',0,1,.02,0),fRange(t,'Negativo','f.inv',0,1,.02,0)),
@@ -752,7 +753,7 @@ function buildInsp(){
 }
 
 /* ───────── paneles de la izquierda ───────── */
-const TABS=[['plantillas','layout','Plantillas'],['subidas','upload','Subidas'],['fotos','photo','Fotos'],['elementos','shapes','Elementos'],['texto','text','Texto'],['fondo','drop','Fondo'],['dibujo','brush','Dibujo'],['capas','layers','Capas'],['pano','grid','Paño'],['marca','star','Mi marca']];
+const TABS=[['plantillas','layout','Plantillas'],['subidas','upload','Subidas'],['fotos','photo','Fotos'],['elementos','shapes','Elementos'],['texto','text','Texto'],['fondo','drop','Fondo'],['dibujo','brush','Dibujo'],['capas','layers','Capas'],['productos','shirt','Productos'],['pano','grid','Paño'],['marca','star','Mi marca']];
 function closeSheets(){document.body.classList.remove('left-open','insp-open');$$('#rail button').forEach(b=>b.classList.remove('on'));setTimeout(fitZoom,0)}
 function openTab(name,force){
   const b=document.body;
@@ -1042,7 +1043,7 @@ async function addRemote(urls,extra){
   toast('Esa página no deja descargar la imagen directo: copiala (clic derecho → Copiar imagen) y pegala con Ctrl+V.',5000);
 }
 /* ───────── fondos con trama, etiquetas, íconos, grupos, marca ───────── */
-Object.assign(IC,{grid:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',flip:'M12 3v18M8 7 3 12l5 5M16 7l5 5-5 5',star:'M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.200-.9z',group:'M3 3h8v8H3zM13 13h8v8h-8zM7 11v6h6',ungroup:'M3 3h8v8H3zM13 13h8v8h-8z',wand:'M4 20 15 9M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 12l.7 1.300 1.300.7-1.300.7-.7 1.300-.7-1.300-1.300-.7 1.300-.7z'});
+Object.assign(IC,{shirt:'M8 3 4 5 2 9l3 2 1-1v11h12V10l1 1 3-2-2-4-4-2c0 2-1.800 3-4 3S8 5 8 3z',grid:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',flip:'M12 3v18M8 7 3 12l5 5M16 7l5 5-5 5',star:'M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.200-.9z',group:'M3 3h8v8H3zM13 13h8v8h-8zM7 11v6h6',ungroup:'M3 3h8v8H3zM13 13h8v8h-8z',wand:'M4 20 15 9M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 12l.7 1.300 1.300.7-1.300.7-.7 1.300-.7-1.300-1.300-.7 1.300-.7z'});
 const PATS={
  puntos(x,T){for(const[a,b]of[[.5,.5],[0,0],[1,0],[0,1],[1,1]]){x.beginPath();x.arc(a*T,b*T,T*.14,0,7);x.fill()}},
  lunares(x,T){x.beginPath();x.arc(T/2,T/2,T*.3,0,7);x.fill()},
@@ -1281,13 +1282,27 @@ const PANES={
         el('button',{className:'wide primary',textContent:'Armar el paño',onclick:()=>newSheet(+rs.value,clamp(+len.value||100,10,1000),+dp.value)}),
         el('p',{className:'hint',textContent:'Si "Ajustar el largo" está activo, el paño se alarga o se acorta solo para que entre todo.'}))].filter(Boolean));
   },
+  productos(box){
+    const m=mockTarget(),fi=el('input',{type:'file',accept:'image/*',hidden:true,onchange:async e=>{const f=e.target.files[0];e.target.value='';if(f)try{await putOnMock(await fileToSrc(f))}catch(_){toast('No se pudo abrir esa imagen.')}}});
+    box.append(...[el('h2',{textContent:'Productos'}),el('p',{className:'hint',textContent:'Mostrá cómo queda tu diseño en una remera, buzo, taza, bolsa o gorra, para publicar en redes.'}),
+      el('h3',{textContent:'1. Elegí el producto'}),el('div',{className:'grid g3'},Object.entries(MOCKS).map(([k,M])=>el('button',{className:'th sq'+(ms.k===k?' on':''),style:'padding:6px;background:var(--panel2)'+(ms.k===k?';outline:2px solid var(--ac)':''),title:M.n,onclick(){ms.k=k;openTab('productos',true)}},el('img',{src:svgURL(mockSVG(k),ms.c),style:'object-fit:contain'}),el('small',{textContent:M.n})))),
+      el('h3',{textContent:'2. Elegí el color'}),el('div',{className:'grid g6'},MCOLS.map(([n,c])=>el('button',{className:'sw',title:n,style:`background:${c};${ms.c===c?'outline:2px solid var(--ac);outline-offset:2px':''}`,onclick:async()=>{ms.c=c;const s=selObjs().find(o=>o.mock);if(s)await recolorMock(s,c);openTab('productos',true)}}))),
+      el('p',{className:'hint',textContent:'Si tenés una prenda seleccionada en el lienzo, le cambia el color.'}),
+      el('div',{className:'acts'},el('button',{className:'primary',innerHTML:ic('plus')+'Agregar al diseño',onclick:()=>addMock()}),el('button',{innerHTML:ic('layout')+'Armar publicación',onclick:mockPost})),
+      el('h3',{textContent:'3. Poné tu diseño o foto'}),fi,
+      el('p',{className:'hint',textContent:m?`Se pone en: ${m.name||'la prenda'}${selObjs().includes(m)?' (seleccionada)':''}.`:'Todavía no hay una prenda en el lienzo: se agrega sola al poner el diseño.'}),
+      el('div',{className:'acts'},el('button',{innerHTML:ic('upload')+'Subir imagen',onclick:()=>fi.click()}),el('button',{textContent:'Usar la foto seleccionada',onclick:moveSelToMock})),
+      tray.length>0&&el('p',{className:'hint',textContent:'O tocá un diseño de la bandeja (los que mandaste desde Paño):'}),
+      tray.length>0&&el('div',{className:'grid g3'},tray.map(t=>el('button',{className:'th fit sq',style:'background:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%) 0 0/12px 12px',title:t.name,onclick:()=>putOnMock(t.src)},el('img',{src:t.src})))),
+      el('p',{className:'hint',textContent:'El diseño queda agrupado con la prenda: si movés la remera, se mueve con ella. En prendas claras se mezcla con las arrugas de la tela para que se vea real.'})].filter(Boolean));
+  },
   capas(box){box.append(el('h2',{textContent:'Capas'}),el('div',{id:'layList'}));buildLayers()},
 };
 function buildLayers(){
   const box=$('#layList');if(!box)return;box.innerHTML='';const L=objs();
   if(!L.length)box.append(el('p',{className:'hint',textContent:'Todavía no hay elementos en esta página.'}));
   [...L].reverse().forEach(o=>{
-    const name=o.type==='text'?'T  '+o.text.replace(/\n/g,' ').slice(0,30):o.type==='image'?(o.svg?'Ícono':'Imagen'):o.type==='path'?'Trazo':isLine(o)?'Línea':'Forma';
+    const name=o.type==='text'?'T  '+o.text.replace(/\n/g,' ').slice(0,30):o.type==='image'?(o.mock?(o.name||'Producto'):o.svg?'Ícono':'Imagen'):o.type==='path'?'Trazo':isLine(o)?'Línea':'Forma';
     const stop=fn=>e=>{e.stopPropagation();fn()};
     box.append(el('div',{className:'lay'+(sel.includes(o.id)?' on':''),onclick(e){sel=e.shiftKey?[...new Set([...sel,o.id])]:[o.id];buildInsp();render();buildLayers()}},
       el('button',{innerHTML:ic(o.hide?'eyeoff':'eye'),title:'Mostrar / ocultar',onclick:stop(()=>{o.hide=!o.hide;commit()})}),el('span',{textContent:name}),
@@ -1368,6 +1383,63 @@ function drawCuts(c,p){
   c.save();c.strokeStyle='#9ca3af';c.lineWidth=Math.max(1,dpi/60);c.setLineDash([dpi*.12,dpi*.08]);
   for(const o of p.objs)if(!o.hide&&!o.bgp){const a=aabb(o);c.strokeRect(a.x-g,a.y-g,a.w+2*g,a.h+2*g)}
   c.restore();
+}
+
+/* ───────── productos para mostrar (mockups): remeras, buzos, tazas… ───────── */
+const SEAM='stroke="#000" stroke-opacity=".16" fill="none"',SOFT='stroke="#000" stroke-opacity=".08" fill="none" stroke-linecap="round" filter="url(#b)"',HI='stroke="#fff" stroke-opacity=".07" fill="none" stroke-linecap="round" filter="url(#b)"';
+const MOCKS={
+ remera:{n:'Remera',area:{x:.34,y:.25,w:.32,h:.38},d:'M380 95 L215 140 Q150 165 120 210 L55 335 L170 420 L262 352 L262 925 Q500 945 738 925 L738 352 L830 420 L945 335 L880 210 Q850 165 785 140 L620 95 Q560 175 500 175 Q440 175 380 95 Z',
+  x:`<path d="M380 95 Q500 125 620 95 Q560 175 500 175 Q440 175 380 95 Z" fill="#000" fill-opacity=".28"/><path d="M380 95 Q440 175 500 175 Q560 175 620 95" ${SEAM} stroke-width="12"/><path d="M262 352 Q250 240 226 146M738 352 Q750 240 774 146" ${SEAM} stroke-width="4"/><path d="M70 305 L183 395M930 305 L817 395" ${SEAM} stroke-width="4"/><path d="M266 898 Q500 916 734 898" ${SEAM} stroke-width="4"/><path d="M330 560 Q365 720 335 880M680 520 Q650 700 675 880M300 380 Q340 420 330 470" ${SOFT} stroke-width="22"/><path d="M450 300 Q470 600 440 880" ${HI} stroke-width="40"/>`},
+ musculosa:{n:'Musculosa',area:{x:.34,y:.3,w:.32,h:.36},d:'M370 80 L300 92 Q302 250 255 330 L255 925 Q500 945 745 925 L745 330 Q698 250 700 92 L630 80 Q600 235 500 235 Q400 235 370 80 Z',
+  x:`<path d="M370 80 Q400 235 500 235 Q600 235 630 80" ${SEAM} stroke-width="12"/><path d="M300 92 Q302 250 255 330M700 92 Q698 250 745 330" ${SEAM} stroke-width="8"/><path d="M259 898 Q500 916 741 898" ${SEAM} stroke-width="4"/><path d="M330 560 Q365 720 335 880M675 540 Q650 700 670 880" ${SOFT} stroke-width="22"/><path d="M450 330 Q470 600 440 880" ${HI} stroke-width="40"/>`},
+ buzo:{n:'Buzo',area:{x:.34,y:.25,w:.32,h:.36},d:'M380 95 L210 140 Q160 160 140 220 L60 820 L170 840 L262 420 L262 925 Q500 945 738 925 L738 420 L830 840 L940 820 L860 220 Q840 160 790 140 L620 95 Q560 165 500 165 Q440 165 380 95 Z',
+  x:`<path d="M380 95 Q500 122 620 95 Q560 165 500 165 Q440 165 380 95 Z" fill="#000" fill-opacity=".28"/><path d="M372 92 Q440 182 500 182 Q560 182 628 92" ${SEAM} stroke-width="22"/><path d="M262 420 Q248 260 222 146M738 420 Q752 260 778 146" ${SEAM} stroke-width="4"/><path d="M66 776 L172 796M934 776 L828 796" ${SEAM} stroke-width="5"/><path d="M265 870 Q500 888 735 870" ${SEAM} stroke-width="5"/><path d="M120 400 Q150 520 110 640M880 400 Q850 520 890 640M330 600 Q360 720 335 860M680 560 Q650 700 675 860" ${SOFT} stroke-width="22"/><path d="M450 300 Q470 600 440 860" ${HI} stroke-width="40"/>`},
+ canguro:{n:'Buzo con capucha',area:{x:.36,y:.27,w:.28,h:.27},d:'M380 95 L210 140 Q160 160 140 220 L60 820 L170 840 L262 420 L262 925 Q500 945 738 925 L738 420 L830 840 L940 820 L860 220 Q840 160 790 140 L620 95 Q560 165 500 165 Q440 165 380 95 Z',
+  x:`<path d="M362 108 Q372 8 500 4 Q628 8 638 108 Q570 190 500 190 Q430 190 362 108 Z" fill="currentColor"/><path d="M362 108 Q372 8 500 4 Q628 8 638 108 Q570 190 500 190 Q430 190 362 108 Z" fill="#000" fill-opacity=".1"/><path d="M405 112 Q415 46 500 42 Q585 46 595 112 Q552 162 500 162 Q448 162 405 112 Z" fill="#000" fill-opacity=".38"/><path d="M468 180 L458 330M532 180 L542 330" stroke="#000" stroke-opacity=".3" stroke-width="7" stroke-linecap="round"/><path d="M355 640 L645 640 L700 840 L300 840 Z" fill="#000" fill-opacity=".05" stroke="#000" stroke-opacity=".16" stroke-width="5"/><path d="M262 420 Q248 260 222 146M738 420 Q752 260 778 146" ${SEAM} stroke-width="4"/><path d="M66 776 L172 796M934 776 L828 796" ${SEAM} stroke-width="5"/><path d="M265 880 Q500 898 735 880" ${SEAM} stroke-width="5"/><path d="M120 400 Q150 520 110 640M880 400 Q850 520 890 640" ${SOFT} stroke-width="22"/><path d="M450 300 Q470 500 455 620" ${HI} stroke-width="40"/>`},
+ taza:{n:'Taza',area:{x:.29,y:.33,w:.36,h:.46},d:'M230 225 L710 225 L710 840 Q710 900 650 900 L290 900 Q230 900 230 840 Z',
+  x:`<path d="M705 370 Q880 370 880 545 Q880 720 705 720" stroke="currentColor" stroke-width="64" fill="none"/><path d="M705 370 Q880 370 880 545 Q880 720 705 720" stroke="#000" stroke-opacity=".14" stroke-width="64" fill="none"/><path d="M712 400 Q850 405 850 545 Q850 690 712 690" stroke="#000" stroke-opacity=".12" stroke-width="10" fill="none"/><ellipse cx="470" cy="225" rx="240" ry="38" fill="currentColor"/><ellipse cx="470" cy="228" rx="222" ry="28" fill="#000" fill-opacity=".32"/><path d="M300 300 L300 820" ${HI} stroke-width="50"/>`},
+ bolsa:{n:'Bolsa tote',area:{x:.32,y:.43,w:.36,h:.4},d:'M250 330 L750 330 L770 935 L230 935 Z',
+  x:`<path d="M355 335 Q345 110 440 110 Q470 110 470 335M645 335 Q655 110 560 110 Q530 110 530 335" stroke="currentColor" stroke-width="34" fill="none"/><path d="M355 335 Q345 110 440 110 Q470 110 470 335M645 335 Q655 110 560 110 Q530 110 530 335" stroke="#000" stroke-opacity=".15" stroke-width="34" fill="none"/><path d="M252 360 L748 360" ${SEAM} stroke-width="4"/><path d="M320 500 Q345 700 310 900M690 480 Q660 700 690 900" ${SOFT} stroke-width="22"/>`},
+ gorra:{n:'Gorra',area:{x:.39,y:.4,w:.22,h:.15},d:'M250 610 Q250 255 500 245 Q750 255 750 610 Z',
+  x:`<path d="M215 600 Q500 555 785 600 Q815 700 500 715 Q185 700 215 600 Z" fill="currentColor"/><path d="M215 600 Q500 555 785 600 Q815 700 500 715 Q185 700 215 600 Z" fill="#000" fill-opacity=".22"/><circle cx="500" cy="250" r="16" fill="#000" fill-opacity=".25"/><path d="M500 250 L500 590M500 250 Q380 300 330 600M500 250 Q620 300 670 600" ${SEAM} stroke-width="4"/><path d="M380 330 Q420 420 400 560" ${HI} stroke-width="40"/>`},
+};
+const MCOLS=[['Blanco','#f5f5f5'],['Negro','#1f1f1f'],['Gris','#9ca3af'],['Azul marino','#1e3a5f'],['Celeste','#90caf9'],['Rojo','#c62828'],['Bordó','#6d1a2b'],['Rosa','#f8bbd0'],['Verde','#2e7d32'],['Verde agua','#80cbc4'],['Amarillo','#fdd835'],['Naranja','#ef6c00'],['Violeta','#6a1b9a'],['Beige','#e8dcc4'],['Marrón','#5d4037'],['Lila','#ce93d8']];
+const ms={k:'remera',c:'#f5f5f5'};
+function mockSVG(k){const M=MOCKS[k];return`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1000 1000"><defs><linearGradient id="s" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".24"/><stop offset=".22" stop-color="#000" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".07"/><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".26"/></linearGradient><filter id="b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter></defs><path d="${M.d}" fill="currentColor"/><path d="${M.d}" fill="url(#s)"/>${M.x}</svg>`}
+const isLight=h=>{const n=parseInt((h||'#ffffff').slice(1),16);return(.299*(n>>16&255)+.587*(n>>8&255)+.114*(n&255))>150};
+async function addMock(k=ms.k,color=ms.c){
+  const svg=mockSVG(k),id=await addAsset(svgURL(svg,color)),s=Math.min(doc.w,doc.h)*.85;
+  return add({type:'image',asset:id,svg,color,mock:k,name:MOCKS[k].n,w:s,h:s,sh:{on:true,c:'#000000',a:.2,b:s*.04,x:0,y:s*.02}});
+}
+const mockTarget=()=>selObjs().find(o=>o.mock)||selObjs().map(o=>o.grp&&objs().find(x=>x.mock&&x.grp===o.grp)).find(Boolean)||[...objs()].reverse().find(o=>o.mock);
+function fitOnMock(m,o){
+  const A=MOCKS[m.mock].area,im=assets[o.asset]?.img,c=o.crop||{w:1,h:1},r=im?(im.naturalWidth*c.w)/(im.naturalHeight*c.h):o.w/o.h;
+  let w=A.w*m.w,h=w/r;if(h>A.h*m.h){h=A.h*m.h;w=h*r}
+  const lx=(A.x+A.w/2-.5)*m.w,ly=A.y*m.h+h/2-m.h/2,a=(m.rot||0)*RAD,cx=m.x+m.w/2+lx*Math.cos(a)-ly*Math.sin(a),cy=m.y+m.h/2+lx*Math.sin(a)+ly*Math.cos(a);
+  Object.assign(o,{w,h,x:cx-w/2,y:cy-h/2,rot:m.rot||0,blend:isLight(m.color)?'multiply':'source-over'});
+  m.grp??=uid();o.grp=m.grp;const L=objs();L.splice(L.indexOf(o),1);L.splice(L.indexOf(m)+1,0,o);
+}
+async function putOnMock(src){
+  let m=mockTarget();if(!m)m=await addMock();
+  const id=await addAsset(src),o={id:uid(),type:'image',asset:id,x:0,y:0,w:10,h:10,rot:0,op:1};objs().push(o);fitOnMock(m,o);sel=[o.id];commit();buildInsp();
+  toast('Diseño puesto en la prenda. Movelo o agrandalo como quieras.');
+}
+function moveSelToMock(){
+  const m=mockTarget(),o=selObjs().find(x=>x.type==='image'&&!x.mock);
+  if(!m||!o)return toast('Seleccioná la foto o el diseño que querés poner (y que haya una prenda en el lienzo).',4500);
+  fitOnMock(m,o);sel=[o.id];commit();buildInsp();
+}
+async function recolorMock(m,c){m.color=c;m.asset=await addAsset(svgURL(m.svg,c));objs().forEach(x=>{if(x!==m&&x.grp&&x.grp===m.grp&&x.type==='image')x.blend=isLight(c)?'multiply':'source-over'});commit();buildInsp()}
+function mockPost(){
+  const go=async()=>{
+    doc=newDoc(1080,1350);cur=0;sel=[];$('#name').value=MOCKS[ms.k].n+' personalizada';pg().bg={a:'#f6f2ec',b:'#ddd3c7',rad:true};
+    const m=await addMock();m.w=m.h=980;m.x=50;m.y=20;m.sh.b=40;m.sh.y=20;
+    await loadFont('Poppins');
+    const t={id:uid(),type:'text',text:MOCKS[ms.k].n+' personalizada',font:'Poppins',bold:true,size:66,fill:'#222222',align:'center',lh:1.1,x:60,y:1040,w:960,rot:0,op:1},p={id:uid(),type:'text',text:'$ 15.000 · Pedila por WhatsApp',font:'Poppins',size:40,fill:'#555555',align:'center',lh:1.2,x:60,y:1150,w:960,rot:0,op:1};
+    fitText(t);fitText(p);objs().push(t,p);sel=[m.id];fitZoom();commit();buildInsp();openTab('productos',true);toast('Ahora poné tu diseño en la prenda (abajo, en el panel).',4500);
+  };
+  if(!objs().length)return go();
+  modal('Armar publicación',el('p',{textContent:'Se arma una publicación nueva (1080 × 1350) y reemplaza el diseño que tenés abierto. Si lo querés conservar, guardalo o mandalo a la bandeja antes.'}),close=>[el('button',{textContent:'Cancelar',onclick:close}),el('button',{className:'primary',textContent:'Armar publicación',onclick(){close();go()}})]);
 }
 
 /* ───────── ventanas ───────── */
